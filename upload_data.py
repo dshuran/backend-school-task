@@ -1,5 +1,5 @@
 from flask import request, abort, jsonify
-from app import Citizen, import_counter
+from app import Citizen, get_dataset_counter
 
 
 def main():
@@ -19,9 +19,10 @@ def main():
             gender=citizen_obj['gender'],
             relatives=citizen_obj['relatives'])
         # add to db
+    dataset_counter = get_dataset_counter()
     success_response = {
         "data": {
-            "import_id": import_counter.inc()
+            "import_id": dataset_counter.inc()
         }
     }
     return jsonify(success_response), 201

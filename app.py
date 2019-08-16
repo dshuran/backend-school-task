@@ -6,22 +6,21 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
 db = SQLAlchemy(app)
 
+singleton_dataset_id = 1
 
-class ImportCounter(db.Model):
+class DatasetCounter(db.Model):
     # SINGLETON
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True) # Всегда должен быть = 1
+    counter = db.Column(db.Integer, nullable=False)
 
     def inc(self):
-        self.id += 1
-        print(self.id)
+        self.counter += 1
+        print(self.counter)
         db.session.commit()
-        return self.id
+        return self.counter
 
     def __repr__(self):
-        return 'Import Counter %r' % self.id
-
-
-import_counter = ImportCounter(id=0)
+        return 'Import Counter id = %r counter = %r' % (self.id, self.counter)
 
 
 class Dataset(db.Model):
@@ -50,6 +49,15 @@ class Citizen(db.Model):
         return 'Citizen %r cit_id %r' % (self.dataset, self.id)
 
 
+def get_dataset_counter():
+    dataset_counter = DatasetCounter.query.filter_by(id=singleton_dataset_id).first()
+    if dataset_counter is None:
+        dataset_counter = DatasetCounter(id=singleton_dataset_id, counter=0)
+        db.session.add(dataset_counter)
+        db.session.commit()
+    return dataset_counter
+
+
 @app.route('/')
 def hello_world():
     return 'Hello World!'
@@ -60,7 +68,15 @@ def import_data():
     return upload_data.main()
 
 
-if __name__ == '__main__':
+def main():
+    # Важно, чтобы создание таблиц
+    # происходило после объявления соответствующих классов
     db.create_all()
+    # Старт приложения
     app.run(debug=True)
+
+
+if __name__ == '__main__':
+    main()
+
 
