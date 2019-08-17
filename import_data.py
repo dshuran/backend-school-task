@@ -80,8 +80,6 @@ def main():
             gender=citizen_obj['gender'],
             relatives=id_separator.join(map(str, citizen_obj['relatives'])),
             dataset=dataset)
-    print(dataset)
-    # check, что родственники норм.
     try:
         validate_citizens_ids_intersection(dataset.citizens)
         validate_relatives(dataset.citizens)
