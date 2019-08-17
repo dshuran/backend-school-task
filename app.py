@@ -16,7 +16,6 @@ class DatasetCounter(db.Model):
 
     def inc(self):
         self.counter += 1
-        print(self.counter)
         db.session.commit()
         return self.counter
 
@@ -51,7 +50,6 @@ class Citizen(db.Model):
 
 
 def get_dataset_counter():
-    print('INSIDE')
     dataset_counter = DatasetCounter.query.filter_by(id=singleton_dataset_id).first()
     if dataset_counter is None:
         dataset_counter = DatasetCounter(id=singleton_dataset_id, counter=0)
