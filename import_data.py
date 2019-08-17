@@ -2,7 +2,8 @@ from flask import request, abort, jsonify
 from app import Citizen, get_dataset_counter, Dataset, db, id_separator
 from jsonschema import validate, draft7_format_checker, FormatChecker, exceptions
 
-from data_validation import validate_date, validate_relatives
+from data_validation import validate_date, validate_relatives, validate_citizens_ids_intersection, \
+    validate_id_not_in_relatives
 
 dataset_import_schema = {
     "type": "object",
@@ -57,12 +58,14 @@ def main():
         abort(400)
     citizens = request.json['citizens']
     dataset_counter = get_dataset_counter()
-    dataset = Dataset(id=(dataset_counter.counter + 1))  # Если будет неудача, то import_id не изменится
+    # Если будет неудача, то import_id не изменится
+    dataset = Dataset(id=(dataset_counter.counter + 1))
     for citizen_obj in citizens:
         try:
             validate(instance=citizen_obj, schema=dataset_import_schema)
             validate_date(citizen_obj['birth_date'])
-            # validate_ids_intersection(citizen_obj['relatives'])
+            # Мы знаем, что как минимум, relatives - список интов.
+            validate_id_not_in_relatives(citizen_obj['citizen_id'], citizen_obj['relatives'])
             # handle in except any other error
         except (exceptions.ValidationError, ValueError):
             abort(400)
@@ -75,13 +78,15 @@ def main():
             name=citizen_obj['name'],
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
-            relatives=id_separator.join(map(str, citizen_obj['relatives'])), # check, что нет самого себя в родственниках
+            relatives=id_separator.join(map(str, citizen_obj['relatives'])),
             dataset=dataset)
     print(dataset)
     # check, что родственники норм.
     try:
+        validate_citizens_ids_intersection(dataset.citizens)
         validate_relatives(dataset.citizens)
-    except ValueError:
+        # проверить, что у пользователей разные айдишники
+    except (ValueError, KeyError):
         abort(400)
     # Данные корректны, добавим в бд.
     db.session.add(dataset)
