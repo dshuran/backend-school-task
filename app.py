@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
 db = SQLAlchemy(app)
 
-singleton_dataset_id = 1
+singleton_dataset_counter_id = 1
 
 
 class DatasetCounter(db.Model):
@@ -38,11 +38,11 @@ class Citizen(db.Model):
     building = db.Column(db.String)
     apartment = db.Column(db.Integer)
     name = db.Column(db.String)
-    birth_date = db.Column(db.DATETIME)
+    birth_date = db.Column(db.String)
     gender = db.Column(db.String)
     relatives = db.Column(db.Integer)  # todo Array, or check that everything is ok
 
-    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
+    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False, primary_key=True)
     dataset = db.relationship('Dataset', backref=db.backref('citizens'))
 
     def __repr__(self):
@@ -50,9 +50,9 @@ class Citizen(db.Model):
 
 
 def get_dataset_counter():
-    dataset_counter = DatasetCounter.query.filter_by(id=singleton_dataset_id).first()
+    dataset_counter = DatasetCounter.query.filter_by(id=singleton_dataset_counter_id).first()
     if dataset_counter is None:
-        dataset_counter = DatasetCounter(id=singleton_dataset_id, counter=0)
+        dataset_counter = DatasetCounter(id=singleton_dataset_counter_id, counter=0)
         db.session.add(dataset_counter)
         db.session.commit()
     return dataset_counter

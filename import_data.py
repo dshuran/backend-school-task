@@ -1,5 +1,5 @@
 from flask import request, abort, jsonify
-from app import Citizen, get_dataset_counter, db
+from app import Citizen, get_dataset_counter, db, Dataset
 from jsonschema import validate, draft7_format_checker, FormatChecker, exceptions
 import datetime
 
@@ -64,6 +64,7 @@ def main():
     if not request.json:  # more checks
         abort(400)
     citizens = request.json['citizens']
+    dataset = Dataset()
     for citizen_obj in citizens:
         try:
             validate(instance=citizen_obj, schema=dataset_import_schema)
@@ -79,10 +80,11 @@ def main():
             name=citizen_obj['name'],
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
-            relatives=citizen_obj['relatives'])  # check, нет ли себя в родственниках
-        db.session.add(citizen)
-        db.commit()
-        # add to db
+            relatives=citizen_obj['relatives'],  # check, нет ли себя в родственниках
+            dataset=dataset)
+    # add to db
+    db.session.add(dataset)
+    db.session.commit()
     dataset_counter = get_dataset_counter()
     success_response = {
         "data": {
