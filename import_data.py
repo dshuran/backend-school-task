@@ -1,6 +1,6 @@
 from flask import request, abort, jsonify
 from app import Citizen, get_dataset_counter, Dataset, db, id_separator
-from jsonschema import validate, draft7_format_checker, FormatChecker, exceptions
+from jsonschema import validate, exceptions
 
 from data_validation import validate_date, validate_relatives, validate_citizens_ids_intersection, \
     validate_id_not_in_relatives
