@@ -27,7 +27,7 @@ class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     def __repr__(self):
-        return 'Dataset %r' % self.id
+        return 'Dataset %r: %r' % (self.id, self.citizens)
 
 
 class Citizen(db.Model):
@@ -38,15 +38,15 @@ class Citizen(db.Model):
     building = db.Column(db.String)
     apartment = db.Column(db.Integer)
     name = db.Column(db.String)
-    birth_date = db.Column(db.DATETIME)
+    birth_date = db.Column(db.String)
     gender = db.Column(db.String)
-    relatives = db.Column(db.Integer)  # todo Array, or check that everything is ok
+    relatives = db.Column(db.String)  # todo Array, or check that everything is ok
 
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
     dataset = db.relationship('Dataset', backref=db.backref('citizens'))
 
     def __repr__(self):
-        return 'Citizen %r cit_id %r' % (self.dataset, self.id)
+        return 'Citizen %r cit_id %r' % (self.dataset, self.citizen_id)
 
 
 def get_dataset_counter():
