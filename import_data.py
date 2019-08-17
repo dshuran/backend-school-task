@@ -1,7 +1,8 @@
 from flask import request, abort, jsonify
-from app import Citizen, get_dataset_counter, Dataset, db
+from app import Citizen, get_dataset_counter, Dataset, db, id_separator
 from jsonschema import validate, draft7_format_checker, FormatChecker, exceptions
-import datetime
+
+from data_validation import validate_date, validate_relatives
 
 dataset_import_schema = {
     "type": "object",
@@ -51,25 +52,18 @@ dataset_import_schema = {
 }
 
 
-def do_external_checks(citizen_obj):
-    validate_date(citizen_obj['birth_date'])
-
-
-def validate_date(date_string):
-    day, month, year = map(int, date_string.split('.'))
-    date = datetime.date(year, month, day)
-
-
 def main():
     if not request.json:  # more checks
         abort(400)
     citizens = request.json['citizens']
     dataset_counter = get_dataset_counter()
-    dataset = Dataset(id=(dataset_counter.counter + 1))  # Если будет не удача, то import_id не изменится
+    dataset = Dataset(id=(dataset_counter.counter + 1))  # Если будет неудача, то import_id не изменится
     for citizen_obj in citizens:
         try:
             validate(instance=citizen_obj, schema=dataset_import_schema)
-            do_external_checks(citizen_obj)
+            validate_date(citizen_obj['birth_date'])
+            # validate_ids_intersection(citizen_obj['relatives'])
+            # handle in except any other error
         except (exceptions.ValidationError, ValueError):
             abort(400)
         citizen = Citizen(
@@ -81,10 +75,15 @@ def main():
             name=citizen_obj['name'],
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
-            relatives='*'.join(map(str, citizen_obj['relatives'])), # check, что нет самого себя в родственниках
+            relatives=id_separator.join(map(str, citizen_obj['relatives'])), # check, что нет самого себя в родственниках
             dataset=dataset)
     print(dataset)
     # check, что родственники норм.
+    try:
+        validate_relatives(dataset.citizens)
+    except ValueError:
+        abort(400)
+    # Данные корректны, добавим в бд.
     db.session.add(dataset)
     db.session.commit()
     success_response = {

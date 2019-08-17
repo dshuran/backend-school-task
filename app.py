@@ -7,6 +7,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school
 db = SQLAlchemy(app)
 
 singleton_dataset_id = 1
+id_separator = '*'
 
 
 class DatasetCounter(db.Model):
