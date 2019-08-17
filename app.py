@@ -1,12 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import upload_data
+import import_data
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
 db = SQLAlchemy(app)
 
 singleton_dataset_id = 1
+
 
 class DatasetCounter(db.Model):
     # SINGLETON
@@ -40,7 +41,7 @@ class Citizen(db.Model):
     name = db.Column(db.String)
     birth_date = db.Column(db.DATETIME)
     gender = db.Column(db.String)
-    relatives = db.Column(db.Integer) # do Array
+    relatives = db.Column(db.Integer)  # todo Array, or check that everything is ok
 
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
     dataset = db.relationship('Dataset', backref=db.backref('citizens'))
@@ -50,6 +51,7 @@ class Citizen(db.Model):
 
 
 def get_dataset_counter():
+    print('INSIDE')
     dataset_counter = DatasetCounter.query.filter_by(id=singleton_dataset_id).first()
     if dataset_counter is None:
         dataset_counter = DatasetCounter(id=singleton_dataset_id, counter=0)
@@ -64,8 +66,8 @@ def hello_world():
 
 
 @app.route('/imports', methods=['POST'])
-def import_data():
-    return upload_data.main()
+def do_import_data():
+    return import_data.main()
 
 
 def main():
