@@ -1,5 +1,6 @@
 from app import Dataset
-from flask import jsonify, Response
+from flask import jsonify
+from collections import OrderedDict
 
 
 def main(import_id):
@@ -13,4 +14,4 @@ def main(import_id):
         res = {
             "data": res_list
         }
-        return res, 200
+        return jsonify(res), 200

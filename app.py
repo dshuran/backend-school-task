@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
+app.config['JSON_SORT_KEYS'] = False
 db = SQLAlchemy(app)
 
 singleton_dataset_id = 1
@@ -40,7 +41,7 @@ class Citizen(db.Model):
     name = db.Column(db.String)
     birth_date = db.Column(db.String)
     gender = db.Column(db.String)
-    relatives = db.Column(db.String)  # todo Array, or check that everything is ok
+    relatives = db.Column(db.String)
 
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
     dataset = db.relationship('Dataset', backref=db.backref('citizens'))
@@ -49,6 +50,7 @@ class Citizen(db.Model):
         relatives_list = []
         if len(self.relatives) > 0:
             relatives_list = list(map(int, self.relatives.split(id_separator)))
+        print('list = ', relatives_list)
         return relatives_list
 
     def json_representation(self):
