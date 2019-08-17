@@ -1,6 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import import_data
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
@@ -46,6 +45,27 @@ class Citizen(db.Model):
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
     dataset = db.relationship('Dataset', backref=db.backref('citizens'))
 
+    def get_relatives_list(self):
+        relatives_list = []
+        if len(self.relatives) > 0:
+            relatives_list = list(map(int, self.relatives.split(id_separator)))
+        return relatives_list
+
+    def json_representation(self):
+        relatives_list = self.get_relatives_list()
+        res = {
+            "citizen_id": self.citizen_id,
+            "town": self.town,
+            "street": self.street,
+            "building": self.building,
+            "apartment": self.apartment,
+            "name": self.name,
+            "birth_date": self.birth_date,
+            "gender": self.gender,
+            "relatives": relatives_list
+        }
+        return res
+
     def __repr__(self):
         return 'Citizen %r cit_id %r' % (self.dataset, self.citizen_id)
 
@@ -66,7 +86,14 @@ def hello_world():
 
 @app.route('/imports', methods=['POST'])
 def do_import_data():
+    import import_data
     return import_data.main()
+
+
+@app.route('/imports/<import_id>/citizens', methods=['GET'])
+def do_get_data(import_id):
+    import get_data
+    return get_data.main(import_id)
 
 
 def main():

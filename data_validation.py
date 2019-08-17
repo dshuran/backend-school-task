@@ -24,6 +24,7 @@ def validate_relatives(citizens):
     # cit[id] -> интовый set айдишников пользователей
     cit = {}
     for citizen in citizens:
+        # todo: Заюзать внутренний метод citizen
         users = set()
         if len(citizen.relatives) > 0:
             users = set(map(int, citizen.relatives.split(id_separator)))
