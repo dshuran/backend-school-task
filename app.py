@@ -50,7 +50,6 @@ class Citizen(db.Model):
         relatives_list = []
         if len(self.relatives) > 0:
             relatives_list = list(map(int, self.relatives.split(id_separator)))
-        print('list = ', relatives_list)
         return relatives_list
 
     def json_representation(self):
