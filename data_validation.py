@@ -1,5 +1,5 @@
 import datetime
-from app import id_separator
+from citizen_mdl import id_separator
 
 
 def validate_date(date_string):

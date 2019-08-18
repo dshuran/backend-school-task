@@ -1,5 +1,5 @@
-from app import Dataset
 from flask import jsonify, abort
+from dataset_mdl import Dataset
 
 
 def main(import_id):

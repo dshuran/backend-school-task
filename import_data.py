@@ -1,5 +1,7 @@
 from flask import request, abort, jsonify
-from app import Citizen, get_dataset_counter, Dataset, db, id_separator
+from dataset_mdl import Dataset
+from citizen_mdl import Citizen, id_separator
+from dataset_counter_mdl import get_dataset_counter
 from jsonschema import validate, exceptions
 
 from data_validation import validate_date, validate_relatives, validate_citizens_ids_intersection, \
@@ -53,7 +55,7 @@ dataset_import_schema = {
 }
 
 
-def main():
+def main(db):
     if not request.json:  # more checks
         abort(400)
     citizens = request.json['citizens']
