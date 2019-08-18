@@ -3,6 +3,7 @@ from dataset_mdl import Dataset
 from citizen_mdl import Citizen, id_separator
 from dataset_counter_mdl import get_dataset_counter
 from jsonschema import validate, exceptions
+from database import db
 
 from data_validation import validate_date, validate_relatives, validate_citizens_ids_intersection, \
     validate_id_not_in_relatives
@@ -55,7 +56,7 @@ dataset_import_schema = {
 }
 
 
-def main(db):
+def main():
     if not request.json:  # more checks
         abort(400)
     citizens = request.json['citizens']
