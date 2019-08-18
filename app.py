@@ -88,12 +88,14 @@ def hello_world():
 @app.route('/imports', methods=['POST'])
 def do_import_data():
     import import_data
+    # todo разобраться с импортами + обёртку try/except для разных исключений.
     return import_data.main()
 
 
 @app.route('/imports/<import_id>/citizens', methods=['GET'])
 def do_get_data(import_id):
     import get_data
+    # todo разобраться с импортами + обёртку try/except для разных исключений.
     return get_data.main(import_id)
 
 
