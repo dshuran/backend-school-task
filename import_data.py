@@ -82,7 +82,7 @@ def main():
             name=citizen_obj['name'],
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
-            relatives=id_separator.join(map(str, citizen_obj['relatives'])),
+            relatives=id_separator.join(map(str, citizen_obj['relatives'])), # todo: заменить на pack relatives to string
             dataset=dataset)
     try:
         validate_citizens_ids_intersection(dataset.citizens)

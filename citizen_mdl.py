@@ -2,6 +2,17 @@ from database import db
 
 id_separator = '*'
 
+
+def pack_relatives_to_db_format(relatives_list):
+    return id_separator.join(map(str, relatives_list))
+
+
+def unpack_relatives_to_int_list(db_relatives):
+    if len(db_relatives) > 0:
+        return list(map(int, db_relatives.split(id_separator)))
+    return []
+
+
 class Citizen(db.Model):
     # some checks on date maybe
     citizen_id = db.Column(db.Integer, primary_key=True)

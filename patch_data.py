@@ -1,7 +1,7 @@
-from flask import abort, request
+from flask import abort, request, jsonify
 from jsonschema import validate, exceptions
 
-from citizen_mdl import Citizen
+from citizen_mdl import Citizen, pack_relatives_to_string, unpack_relatives_to_int_list, pack_relatives_to_db_format
 from data_validation import validate_date, validate_id_not_in_relatives, do_single_citizen_validations
 from dataset_mdl import Dataset
 
@@ -59,43 +59,58 @@ dataset_patch_schema = {
 }
 
 
+def remove_cur_citizen_from_other_relatives(relative, citizen_id):
+    pass
+
+
+def add_cur_citizen_to_other_relatives(relative_id, citizen_id):
+    pass
+
+
 def main(import_id, citizen_id):
     if not request.json:
         abort(400)
     citizen = Citizen.query.filter_by(citizen_id=citizen_id, dataset_id=import_id).first()
-    try:
-        if citizen is None:
-            raise ValueError
-        else:
-            try:
-                citizen_obj = request.json
-                validate(instance=citizen_obj, schema=dataset_patch_schema)
-                if 'birth_date' in citizen_obj:
-                    validate_date(citizen_obj['birth_date'])
-                if 'relatives' in citizen_obj:
-                    validate_id_not_in_relatives(citizen.citizen_id, citizen_obj['relatives'])
-                if 'town' in citizen_obj:
-                    citizen_obj.town = citizen_obj['town']
-                if 'street' in citizen_obj:
-                    citizen_obj.street = citizen_obj['street']
-                if 'building' in citizen_obj:
-                    citizen_obj.building = citizen_obj['building']
-                if 'apartment' in citizen_obj:
-                    citizen_obj.apartment = citizen_obj['apartment']
-                if 'name' in citizen_obj:
-                    citizen_obj.name = citizen_obj['name']
-                if 'birth_date' in citizen_obj:
-                    citizen_obj.birth_date = citizen_obj['birth_date']
-                if 'gender' in citizen_obj:
-                    citizen_obj.gender = citizen_obj['gender']
-                if 'relatives' in citizen_obj:
-                    prev_relatives = citizen_obj.relatives
-                    cur_relatives = citizen_obj['relatives']
-                    # todo: привести бд в консистентное состояние
-                    citizen_obj.relatives = citizen_obj['relatives']
-            except (exceptions.ValidationError, ValueError):
-                abort(400)
-    except ValueError:
-        abort(400)
+    if citizen is None:
+        raise ValueError
+    else:
+        citizen_obj = request.json
+        validate(instance=citizen_obj, schema=dataset_patch_schema)
+        if 'birth_date' in citizen_obj:
+            validate_date(citizen_obj['birth_date'])
+        if 'relatives' in citizen_obj:
+            validate_id_not_in_relatives(citizen.citizen_id, citizen_obj['relatives'])
+        # Валидация закончена
+        print('HERE')
+        print(type(citizen_obj))
+        if 'town' in citizen_obj:
+            citizen.town = citizen_obj['town']
+        if 'street' in citizen_obj:
+            citizen.street = citizen_obj['street']
+        if 'building' in citizen_obj:
+            citizen.building = citizen_obj['building']
+        if 'apartment' in citizen_obj:
+            citizen.apartment = citizen_obj['apartment']
+        if 'name' in citizen_obj:
+            citizen.name = citizen_obj['name']
+        if 'birth_date' in citizen_obj:
+            citizen.birth_date = citizen_obj['birth_date']
+        if 'gender' in citizen_obj:
+            citizen.gender = citizen_obj['gender']
+        if 'relatives' in citizen_obj:
+            prev_relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+            cur_relatives_list = citizen_obj['relatives']
+            prev_relatives = set(prev_relatives_list)
+            cur_relatives = set(cur_relatives_list)
+            for relative_id in prev_relatives.difference(cur_relatives):
+                remove_cur_citizen_from_other_relatives(relative_id, citizen_id)
+            for relative_id in cur_relatives.difference(prev_relatives):
+                add_cur_citizen_to_other_relatives(relative_id, citizen_id)
+            # todo: привести бд в консистентное состояние
+            citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
+        res = {
+            "data": citizen.json_representation()
+        }
+        return jsonify(res), 200
 
 

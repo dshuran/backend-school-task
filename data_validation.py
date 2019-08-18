@@ -34,6 +34,7 @@ def validate_relatives(citizens):
     cit = {}
     for citizen in citizens:
         # todo: Заюзать внутренний метод citizen
+        # todo: Точнее static функцию
         users = set()
         if len(citizen.relatives) > 0:
             users = set(map(int, citizen.relatives.split(id_separator)))
