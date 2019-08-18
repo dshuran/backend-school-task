@@ -1,7 +1,10 @@
-from flask import Flask
-from database import db
-import get_data, import_data
 import os.path
+
+from flask import Flask
+
+import get_data
+import import_data
+from database import db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'

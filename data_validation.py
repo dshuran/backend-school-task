@@ -1,10 +1,24 @@
 import datetime
 from citizen_mdl import id_separator
 
+# Сначала общие валидации конкретного жителя
+
 
 def validate_date(date_string):
     day, month, year = map(int, date_string.split('.'))
     datetime.date(year, month, day)
+
+
+def validate_id_not_in_relatives(cit_id, relatives_ids):
+    if cit_id in set(relatives_ids):
+        raise ValueError
+
+
+def do_single_citizen_validations(citizen_obj):
+    validate_date(citizen_obj['birth_date'])
+    validate_id_not_in_relatives(citizen_obj['citizen_id'], citizen_obj['relatives'])
+
+# Дальше идут валидации применительно к POST запросу
 
 
 def validate_citizens_ids_intersection(citizens):
@@ -13,11 +27,6 @@ def validate_citizens_ids_intersection(citizens):
         if citizen.citizen_id in users:
             raise ValueError
         users.add(citizen.citizen_id)
-
-
-def validate_id_not_in_relatives(cit_id, relatives_ids):
-    if cit_id in set(relatives_ids):
-        raise ValueError
 
 
 def validate_relatives(citizens):

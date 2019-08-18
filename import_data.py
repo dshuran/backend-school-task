@@ -6,7 +6,7 @@ from jsonschema import validate, exceptions
 from database import db
 
 from data_validation import validate_date, validate_relatives, validate_citizens_ids_intersection, \
-    validate_id_not_in_relatives
+    validate_id_not_in_relatives, do_single_citizen_validations
 
 dataset_import_schema = {
     "type": "object",
@@ -64,12 +64,12 @@ def main():
     # Если будет неудача, то import_id не изменится
     dataset = Dataset(id=(dataset_counter.counter + 1))
     # todo: больше проверок на формат данных здесь. Что вообще есть поле citizens, что оно итерабельное.
+    # todo: Для этого нужно просто чек, что request.json['citizens'] type object в другой схеме
     for citizen_obj in citizens:
         try:
             validate(instance=citizen_obj, schema=dataset_import_schema)
-            validate_date(citizen_obj['birth_date'])
             # Мы знаем, что как минимум, relatives - список интов.
-            validate_id_not_in_relatives(citizen_obj['citizen_id'], citizen_obj['relatives'])
+            do_single_citizen_validations(citizen_obj)
             # handle in except any other error
         except (exceptions.ValidationError, ValueError):
             abort(400)
