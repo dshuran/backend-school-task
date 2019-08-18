@@ -4,6 +4,7 @@ from flask import Flask
 
 import get_data
 import import_data
+import patch_data
 from database import db
 
 app = Flask(__name__)
@@ -22,6 +23,12 @@ def do_import_data():
 def do_get_data(import_id):
     # todo обёртку try/except для разных исключений.
     return get_data.main(import_id)
+
+
+@app.route('/imports/<import_id>/citizens/<citizen_id>', methods=['PATCH'])
+def do_patch_data(import_id, citizen_id):
+    # todo обёртку try/except для разных исключений.
+    return patch_data.main(import_id, citizen_id)
 
 
 def setup_database():

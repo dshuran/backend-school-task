@@ -62,7 +62,7 @@ dataset_patch_schema = {
 def main(import_id, citizen_id):
     if not request.json:
         abort(400)
-    citizen = Citizen.query.filter_by(id=citizen_id, dataset_id=import_id).first()
+    citizen = Citizen.query.filter_by(citizen_id=citizen_id, dataset_id=import_id).first()
     try:
         if citizen is None:
             raise ValueError
@@ -70,8 +70,29 @@ def main(import_id, citizen_id):
             try:
                 citizen_obj = request.json
                 validate(instance=citizen_obj, schema=dataset_patch_schema)
-                do_single_citizen_validations(citizen_obj)
-
+                if 'birth_date' in citizen_obj:
+                    validate_date(citizen_obj['birth_date'])
+                if 'relatives' in citizen_obj:
+                    validate_id_not_in_relatives(citizen.citizen_id, citizen_obj['relatives'])
+                if 'town' in citizen_obj:
+                    citizen_obj.town = citizen_obj['town']
+                if 'street' in citizen_obj:
+                    citizen_obj.street = citizen_obj['street']
+                if 'building' in citizen_obj:
+                    citizen_obj.building = citizen_obj['building']
+                if 'apartment' in citizen_obj:
+                    citizen_obj.apartment = citizen_obj['apartment']
+                if 'name' in citizen_obj:
+                    citizen_obj.name = citizen_obj['name']
+                if 'birth_date' in citizen_obj:
+                    citizen_obj.birth_date = citizen_obj['birth_date']
+                if 'gender' in citizen_obj:
+                    citizen_obj.gender = citizen_obj['gender']
+                if 'relatives' in citizen_obj:
+                    prev_relatives = citizen_obj.relatives
+                    cur_relatives = citizen_obj['relatives']
+                    # todo: привести бд в консистентное состояние
+                    citizen_obj.relatives = citizen_obj['relatives']
             except (exceptions.ValidationError, ValueError):
                 abort(400)
     except ValueError:
