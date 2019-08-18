@@ -60,6 +60,7 @@ def main():
     dataset_counter = get_dataset_counter()
     # Если будет неудача, то import_id не изменится
     dataset = Dataset(id=(dataset_counter.counter + 1))
+    # todo: больше проверок на формат данных здесь. Что вообще есть поле citizens, что оно итерабельное.
     for citizen_obj in citizens:
         try:
             validate(instance=citizen_obj, schema=dataset_import_schema)
@@ -83,7 +84,6 @@ def main():
     try:
         validate_citizens_ids_intersection(dataset.citizens)
         validate_relatives(dataset.citizens)
-        # проверить, что у пользователей разные айдишники
     except (ValueError, KeyError):
         abort(400)
     # Данные корректны, добавим в бд.
