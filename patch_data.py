@@ -1,5 +1,6 @@
 from flask import abort, request, jsonify
 from jsonschema import validate, exceptions
+from database import db
 
 from citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
 from data_validation import validate_date, validate_id_not_in_relatives, do_single_citizen_validations
@@ -59,12 +60,26 @@ dataset_patch_schema = {
 }
 
 
-def remove_cur_citizen_from_other_relatives(relative, citizen_id):
-    pass
+def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
+    citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
+    if citizen is None:
+        raise ValueError
+    else:
+        relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+        relatives_list.remove(citizen_id)
+        packed_relatives = pack_relatives_to_db_format(relatives_list)
+        citizen.relatives = packed_relatives
 
 
-def add_cur_citizen_to_other_relatives(relative_id, citizen_id):
-    pass
+def add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id):
+    citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
+    if citizen is None:
+        raise ValueError
+    else:
+        relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+        relatives_list.append(citizen_id)
+        packed_relatives = pack_relatives_to_db_format(relatives_list)
+        citizen.relatives = packed_relatives
 
 
 def main(import_id, citizen_id):
@@ -102,12 +117,13 @@ def main(import_id, citizen_id):
             cur_relatives_list = citizen_obj['relatives']
             prev_relatives = set(prev_relatives_list)
             cur_relatives = set(cur_relatives_list)
+            # todo: Нужно ли посортить?
             for relative_id in prev_relatives.difference(cur_relatives):
-                remove_cur_citizen_from_other_relatives(relative_id, citizen_id)
+                remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
             for relative_id in cur_relatives.difference(prev_relatives):
-                add_cur_citizen_to_other_relatives(relative_id, citizen_id)
-            # todo: привести бд в консистентное состояние
+                add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
             citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
+        db.session.commit()
         res = {
             "data": citizen.json_representation()
         }
