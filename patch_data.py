@@ -3,8 +3,7 @@ from jsonschema import validate, exceptions
 from database import db
 
 from citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
-from data_validation import validate_date, validate_id_not_in_relatives, do_single_citizen_validations
-from dataset_mdl import Dataset
+from data_validation import validate_date, validate_id_not_in_relatives
 
 dataset_patch_schema = {
     "type": "object",

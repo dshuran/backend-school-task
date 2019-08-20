@@ -5,8 +5,8 @@ from dataset_counter_mdl import get_dataset_counter
 from jsonschema import validate, exceptions
 from database import db
 
-from data_validation import validate_date, validate_relatives, validate_citizens_ids_intersection, \
-    validate_id_not_in_relatives, do_single_citizen_validations
+from data_validation import validate_relatives, validate_citizens_ids_intersection, \
+     do_single_citizen_validations
 
 dataset_import_schema = {
     "type": "object",
