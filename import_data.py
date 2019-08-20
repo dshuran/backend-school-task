@@ -8,7 +8,19 @@ from database import db
 from data_validation import validate_relatives, validate_citizens_ids_intersection, \
      do_single_citizen_validations
 
-dataset_import_schema = {
+dataset_import_outer_schema = {
+    "type": "object",
+    "properties": {
+        "citizens": {
+            "type": "array",
+            "minItems": 1
+        }
+    },
+    "required": ["citizens"],
+    "additionalProperties": False
+}
+
+dataset_import_inner_schema = {
     "type": "object",
     "properties": {
         "citizen_id": {
@@ -59,19 +71,25 @@ dataset_import_schema = {
 def main():
     if not request.json:  # more checks
         abort(400)
+    try:
+        validate(instance=request.json, schema=dataset_import_outer_schema)
+    except (exceptions.ValidationError, ValueError) as e:
+        print(e)
+        abort(400)
     citizens = request.json['citizens']
     dataset_counter = get_dataset_counter()
     # Если будет неудача, то import_id не изменится
     dataset = Dataset(id=(dataset_counter.counter + 1))
-    # todo: больше проверок на формат данных здесь. Что вообще есть поле citizens, что оно итерабельное.
+    # todo: больше проверок на формат данных здесь. Что вообще есть поле citizens, что оно итерабельное. -- Учитывается в type: object схемы.
     # todo: Для этого нужно просто чек, что request.json['citizens'] type object в другой схеме
     for citizen_obj in citizens:
         try:
-            validate(instance=citizen_obj, schema=dataset_import_schema)
+            validate(instance=citizen_obj, schema=dataset_import_inner_schema)
             # Мы знаем, что как минимум, relatives - список интов.
             do_single_citizen_validations(citizen_obj)
             # handle in except any other error
-        except (exceptions.ValidationError, ValueError):
+        except (exceptions.ValidationError, ValueError) as e:
+            print(e)
             abort(400)
         citizen = Citizen(
             citizen_id=citizen_obj['citizen_id'],  # check, что нет такого же айди в выгрузке
