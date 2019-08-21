@@ -1,6 +1,6 @@
 from flask import request, abort, jsonify
 from dataset_mdl import Dataset
-from citizen_mdl import Citizen, id_separator
+from citizen_mdl import Citizen, id_separator, pack_relatives_to_db_format
 from dataset_counter_mdl import get_dataset_counter
 from jsonschema import validate, exceptions
 from database import db
@@ -104,7 +104,8 @@ def main():
             name=citizen_obj['name'],
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
-            relatives=id_separator.join(map(str, citizen_obj['relatives'])), # todo: заменить на pack relatives to string
+            relatives=pack_relatives_to_db_format(citizen_obj['relatives']),
+
             dataset=dataset)
     try:
         validate_citizens_ids_intersection(dataset.citizens)
