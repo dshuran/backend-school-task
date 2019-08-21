@@ -1,5 +1,6 @@
 import datetime
-from citizen_mdl import id_separator
+from citizen_mdl import id_separator, unpack_relatives_to_int_list
+
 
 # Сначала общие валидации конкретного жителя
 
@@ -35,9 +36,7 @@ def validate_relatives(citizens):
     for citizen in citizens:
         # todo: Заюзать внутренний метод citizen
         # todo: Точнее static функцию
-        users = set()
-        if len(citizen.relatives) > 0:
-            users = set(map(int, citizen.relatives.split(id_separator)))
+        users = set(unpack_relatives_to_int_list(citizens.relatives))
         cit[citizen.citizen_id] = users
     try:
         for cit_id in cit:

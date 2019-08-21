@@ -105,7 +105,6 @@ def main():
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
             relatives=pack_relatives_to_db_format(citizen_obj['relatives']),
-
             dataset=dataset)
     try:
         validate_citizens_ids_intersection(dataset.citizens)
