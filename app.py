@@ -23,13 +23,13 @@ def do_import_data():
 @app.route('/imports/<import_id>/citizens', methods=['GET'])
 def do_get_data(import_id):
     # todo обёртку try/except для разных исключений.
-    return get_data.main(import_id)
+    return get_data.main(int(import_id))
 
 
 @app.route('/imports/<import_id>/citizens/<citizen_id>', methods=['PATCH'])
 def do_patch_data(import_id, citizen_id):
     # todo обёртку try/except для разных исключений.
-    return patch_data.main(import_id, citizen_id)
+    return patch_data.main(int(import_id), int(citizen_id))
 
 
 def setup_database():

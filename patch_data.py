@@ -60,13 +60,18 @@ dataset_patch_schema = {
 
 
 def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
+    print('relat id = ', relative_id, ' cit id = ', citizen_id, 'import id = ', import_id)
     citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
+    print(citizen)
     if citizen is None:
         raise ValueError
     else:
         try:
             relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+            print(relatives_list, ' id = ', citizen_id)
+            print(type(citizen_id))
             relatives_list.remove(citizen_id)
+            print('there')
             packed_relatives = pack_relatives_to_db_format(relatives_list)
             citizen.relatives = packed_relatives
         except ValueError as e:
@@ -98,8 +103,6 @@ def main(import_id, citizen_id):
         if 'relatives' in citizen_obj:
             validate_id_not_in_relatives(citizen.citizen_id, citizen_obj['relatives'])
         # Валидация закончена
-        print('HERE')
-        print(type(citizen_obj))
         if 'town' in citizen_obj:
             citizen.town = citizen_obj['town']
         if 'street' in citizen_obj:
