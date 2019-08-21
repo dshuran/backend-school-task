@@ -12,7 +12,7 @@ def validate_date(date_string):
 
 def validate_id_not_in_relatives(cit_id, relatives_ids):
     if cit_id in set(relatives_ids):
-        raise ValueError
+        raise ValueError("ERROR! Citizen id in relatives")
 
 
 def do_single_citizen_validations(citizen_obj):
@@ -44,5 +44,5 @@ def validate_relatives(citizens):
                 if cit_id not in cit[relative_id]:
                     raise ValueError
     except KeyError:
-        raise
+        raise KeyError
 
