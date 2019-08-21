@@ -8,6 +8,7 @@ from database import db
 from dataset_counter_mdl import get_dataset_counter
 from dataset_mdl import Dataset
 
+# Схема валидации для IMPORT запроса.
 import_schema = {
     "type": "object",
     "properties": {

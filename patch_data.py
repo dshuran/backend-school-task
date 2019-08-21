@@ -5,6 +5,7 @@ from citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to
 from data_validation import validate_date, validate_id_not_in_relatives
 from database import db
 
+# Схема валидации для PATCH запроса
 dataset_patch_schema = {
     "type": "object",
     "properties": {
@@ -59,6 +60,7 @@ dataset_patch_schema = {
 }
 
 
+# Удаляет citizen_id из списка родственников пользователя с id = relative_id
 def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
     citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
     print(citizen)
@@ -75,6 +77,8 @@ def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
             raise e
 
 
+# Добавляет в список родственников пользователя
+# с id = relative_id пользователя citizen_id
 def add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id):
     citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
     if citizen is None:
@@ -99,47 +103,44 @@ def main(import_id, citizen_id):
         # Если не нашли такого пользователя, выбрасываем исключение.
         raise ValueError("Citizen with such citizen_id and import_id wasn't found")
     else:
-        try:
-            citizen_obj = request.json
-            # Общая валидация PATCH-схемы.
-            validate(instance=citizen_obj, schema=dataset_patch_schema)
-            # Валидация отдельных полей. Проще сделать её вручную.
-            if 'birth_date' in citizen_obj:
-                validate_date(citizen_obj['birth_date'])
-            if 'relatives' in citizen_obj:
-                validate_id_not_in_relatives(citizen.citizen_id, citizen_obj['relatives'])
-            # Валидация закончена
-            if 'town' in citizen_obj:
-                citizen.town = citizen_obj['town']
-            if 'street' in citizen_obj:
-                citizen.street = citizen_obj['street']
-            if 'building' in citizen_obj:
-                citizen.building = citizen_obj['building']
-            if 'apartment' in citizen_obj:
-                citizen.apartment = citizen_obj['apartment']
-            if 'name' in citizen_obj:
-                citizen.name = citizen_obj['name']
-            if 'birth_date' in citizen_obj:
-                citizen.birth_date = citizen_obj['birth_date']
-            if 'gender' in citizen_obj:
-                citizen.gender = citizen_obj['gender']
-            if 'relatives' in citizen_obj:
-                # Получим два сета с id пользователей
-                prev_relatives_list = unpack_relatives_to_int_list(citizen.relatives)
-                cur_relatives_list = citizen_obj['relatives']
-                prev_relatives = set(prev_relatives_list)
-                cur_relatives = set(cur_relatives_list)
-                # todo: Нужно ли посортить?
-                # Получим разницу в обоих случаях и удалим/добавим необходимые id
-                for relative_id in prev_relatives.difference(cur_relatives):
-                    remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
-                for relative_id in cur_relatives.difference(prev_relatives):
-                    add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
-                citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
-        except Exception as e:
-            print(e)
-            abort(400)
-        # Бд всегда в консистентном состоянии
+        citizen_obj = request.json
+        # Общая валидация PATCH-схемы.
+        validate(instance=citizen_obj, schema=dataset_patch_schema)
+        # Валидация отдельных полей. Проще сделать её вручную.
+        if 'birth_date' in citizen_obj:
+            validate_date(citizen_obj['birth_date'])
+        if 'relatives' in citizen_obj:
+            validate_id_not_in_relatives(citizen.citizen_id, citizen_obj['relatives'])
+        # Валидация закончена
+        if 'town' in citizen_obj:
+            citizen.town = citizen_obj['town']
+        if 'street' in citizen_obj:
+            citizen.street = citizen_obj['street']
+        if 'building' in citizen_obj:
+            citizen.building = citizen_obj['building']
+        if 'apartment' in citizen_obj:
+            citizen.apartment = citizen_obj['apartment']
+        if 'name' in citizen_obj:
+            citizen.name = citizen_obj['name']
+        if 'birth_date' in citizen_obj:
+            citizen.birth_date = citizen_obj['birth_date']
+        if 'gender' in citizen_obj:
+            citizen.gender = citizen_obj['gender']
+        if 'relatives' in citizen_obj:
+            # Получим два сета с id пользователей
+            prev_relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+            cur_relatives_list = citizen_obj['relatives']
+            prev_relatives = set(prev_relatives_list)
+            cur_relatives = set(cur_relatives_list)
+            # todo: Нужно ли посортить?
+            # Получим разницу в обоих случаях и
+            # удалим/добавим необходимые id
+            for relative_id in prev_relatives.difference(cur_relatives):
+                remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
+            for relative_id in cur_relatives.difference(prev_relatives):
+                add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
+            citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
+        # Добавим в базу данных.
         db.session.commit()
         res = {
             "data": citizen.json_representation()
