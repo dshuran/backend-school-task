@@ -85,11 +85,8 @@ def main():
     dataset = Dataset(id=(dataset_counter.counter + 1))
     try:
         for citizen_obj in citizens:
-            try:
-                # Мы знаем, что как минимум, relatives - список интов.
-                do_single_citizen_validations(citizen_obj)
-            except (exceptions.ValidationError, ValueError) as e:
-                raise e
+            # Мы знаем, что как минимум, relatives - список интов.
+            do_single_citizen_validations(citizen_obj)
             citizen = Citizen(
                 citizen_id=citizen_obj['citizen_id'],
                 town=citizen_obj['town'],
@@ -101,15 +98,14 @@ def main():
                 gender=citizen_obj['gender'],
                 relatives=pack_relatives_to_db_format(citizen_obj['relatives']),
                 dataset=dataset)
-        try:
             validate_citizens_ids_intersection(dataset.citizens)
             validate_relatives(dataset.citizens)
-        except (ValueError, KeyError) as e:
-            raise e
     except Exception as e:
         print(e)
         abort(400)
     # Данные корректны, добавим в бд.
+    # todo: почекать типы данных: строки/числа
+    # todo: убрать лишние try/catch, если всё ловится наверху в любом случае
     db.session.add(dataset)
     db.session.commit()
     success_response = {
