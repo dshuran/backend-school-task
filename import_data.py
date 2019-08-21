@@ -98,8 +98,8 @@ def main():
                 gender=citizen_obj['gender'],
                 relatives=pack_relatives_to_db_format(citizen_obj['relatives']),
                 dataset=dataset)
-            validate_citizens_ids_intersection(dataset.citizens)
-            validate_relatives(dataset.citizens)
+        validate_citizens_ids_intersection(dataset.citizens)
+        validate_relatives(dataset.citizens)
     except Exception as e:
         print(e)
         abort(400)
