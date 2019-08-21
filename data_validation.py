@@ -36,7 +36,7 @@ def validate_relatives(citizens):
     for citizen in citizens:
         # todo: Заюзать внутренний метод citizen
         # todo: Точнее static функцию
-        users = set(unpack_relatives_to_int_list(citizens.relatives))
+        users = set(unpack_relatives_to_int_list(citizen.relatives))
         cit[citizen.citizen_id] = users
     try:
         for cit_id in cit:
@@ -44,5 +44,5 @@ def validate_relatives(citizens):
                 if cit_id not in cit[relative_id]:
                     raise ValueError
     except KeyError:
-        raise KeyError
+        raise KeyError("Trying to use id that doesn't exist as a key")
 
