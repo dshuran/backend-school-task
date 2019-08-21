@@ -88,15 +88,22 @@ def add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id):
 
 
 def main(import_id, citizen_id):
-    if not request.json:
-        abort(400)
+    # Пытаемся парсить пришедие данные, как JSON.
+    if request.get_json(silent=True) is None:
+        # Если не удалось распарсить, выбрасываем исключение.
+        raise ValueError("request data can't be parsed as json")
+    # Получаем соответствующего жителя по двум
+    # основным ключам -- номеру выгрузки и id.
     citizen = Citizen.query.filter_by(citizen_id=citizen_id, dataset_id=import_id).first()
     if citizen is None:
-        raise ValueError
+        # Если не нашли такого пользователя, выбрасываем исключение.
+        raise ValueError("Citizen with such citizen_id and import_id wasn't found")
     else:
         try:
             citizen_obj = request.json
+            # Общая валидация PATCH-схемы.
             validate(instance=citizen_obj, schema=dataset_patch_schema)
+            # Валидация отдельных полей. Проще сделать её вручную.
             if 'birth_date' in citizen_obj:
                 validate_date(citizen_obj['birth_date'])
             if 'relatives' in citizen_obj:
@@ -117,19 +124,17 @@ def main(import_id, citizen_id):
             if 'gender' in citizen_obj:
                 citizen.gender = citizen_obj['gender']
             if 'relatives' in citizen_obj:
+                # Получим два сета с id пользователей
                 prev_relatives_list = unpack_relatives_to_int_list(citizen.relatives)
                 cur_relatives_list = citizen_obj['relatives']
                 prev_relatives = set(prev_relatives_list)
                 cur_relatives = set(cur_relatives_list)
                 # todo: Нужно ли посортить?
-                try:
-                    for relative_id in prev_relatives.difference(cur_relatives):
-                        remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
-                    for relative_id in cur_relatives.difference(prev_relatives):
-                        add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
-                except ValueError as e:
-                    print(e)
-                    abort(400)
+                # Получим разницу в обоих случаях и удалим/добавим необходимые id
+                for relative_id in prev_relatives.difference(cur_relatives):
+                    remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
+                for relative_id in cur_relatives.difference(prev_relatives):
+                    add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
                 citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
         except Exception as e:
             print(e)
