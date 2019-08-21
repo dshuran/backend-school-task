@@ -1,9 +1,9 @@
 from flask import abort, request, jsonify
-from jsonschema import validate, exceptions
-from database import db
+from jsonschema import validate
 
 from citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
 from data_validation import validate_date, validate_id_not_in_relatives
+from database import db
 
 dataset_patch_schema = {
     "type": "object",

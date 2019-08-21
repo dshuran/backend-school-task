@@ -1,5 +1,6 @@
 import datetime
-from citizen_mdl import id_separator, unpack_relatives_to_int_list
+
+from citizen_mdl import unpack_relatives_to_int_list
 
 
 # Сначала общие валидации конкретного жителя
@@ -42,7 +43,7 @@ def validate_relatives(citizens):
         for cit_id in cit:
             for relative_id in cit[cit_id]:
                 if cit_id not in cit[relative_id]:
-                    raise ValueError
+                    raise ValueError("Relatives ids are in non-persistent state")
     except KeyError:
         raise KeyError("Trying to use id that doesn't exist as a key")
 
