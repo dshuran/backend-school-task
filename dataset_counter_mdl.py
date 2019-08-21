@@ -3,11 +3,13 @@ from database import db
 singleton_dataset_id = 1
 
 
+# Singleton. Используется для хранения данных
+# о номере конкретной выгрузки.
 class DatasetCounter(db.Model):
-    # SINGLETON
     id = db.Column(db.Integer, primary_key=True)  # Всегда должен быть = 1
     counter = db.Column(db.Integer, nullable=False)
 
+    # Увеличивает глобальный счётчик выгрузок на 1.
     def inc(self):
         self.counter += 1
         db.session.commit()

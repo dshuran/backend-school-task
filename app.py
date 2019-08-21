@@ -1,6 +1,6 @@
 import os.path
 
-from flask import Flask
+from flask import Flask, abort
 
 import get_data
 import import_data
@@ -17,19 +17,34 @@ db.init_app(app)
 @app.route('/imports', methods=['POST'])
 def do_import_data():
     # todo обёртку try/except для разных исключений.
-    return import_data.main()
+    try:
+        return import_data.main()
+    except Exception as e:
+        print('OUTER EXCEPTION!!!')
+        print(e)
+        abort(400)
 
 
 @app.route('/imports/<import_id>/citizens', methods=['GET'])
 def do_get_data(import_id):
     # todo обёртку try/except для разных исключений.
-    return get_data.main(int(import_id))
+    try:
+        return get_data.main(int(import_id))
+    except Exception as e:
+        print('OUTER EXCEPTION!!!')
+        print(e)
+        abort(400)
 
 
 @app.route('/imports/<import_id>/citizens/<citizen_id>', methods=['PATCH'])
 def do_patch_data(import_id, citizen_id):
     # todo обёртку try/except для разных исключений.
-    return patch_data.main(int(import_id), int(citizen_id))
+    try:
+        return patch_data.main(int(import_id), int(citizen_id))
+    except Exception as e:
+        print('OUTER EXCEPTION!!!')
+        print(e)
+        abort(400)
 
 
 def setup_database():

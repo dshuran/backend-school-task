@@ -5,7 +5,7 @@ from citizen_mdl import unpack_relatives_to_int_list
 
 # Сначала общие валидации конкретного жителя
 
-
+# Проверка даты на корректность
 def validate_date(date_string):
     try:
         day, month, year = map(int, date_string.split('.'))
@@ -17,11 +17,13 @@ def validate_date(date_string):
         raise e
 
 
+# Проверка, что в родственниках нет самого себя
 def validate_id_not_in_relatives(cit_id, relatives_ids):
     if cit_id in set(relatives_ids):
         raise ValueError("ERROR! Citizen id in relatives")
 
 
+# Все проверки конкретного жителя в одном месте.
 def do_single_citizen_validations(citizen_obj):
     validate_date(citizen_obj['birth_date'])
     validate_id_not_in_relatives(citizen_obj['citizen_id'], citizen_obj['relatives'])
@@ -29,16 +31,25 @@ def do_single_citizen_validations(citizen_obj):
 # Дальше идут валидации применительно к POST запросу
 
 
+# Проверяет на наличие одинаковых id в списке.
 def validate_citizens_ids_intersection(citizens):
     users = set()
     for citizen in citizens:
         if citizen.citizen_id in users:
-            raise ValueError
+            raise ValueError("Two same ids were found!")
         users.add(citizen.citizen_id)
 
 
 def validate_relatives(citizens):
-    # cit[id] -> интовый set айдишников пользователей
+    """
+    Проверяет, что родственники консистентны по отношению друг к другу.
+    Т.е. если А -- родственник Б, то и А должен
+    иметь в родственниках Б.
+
+    cit[id] -- интовый set айдишников пользователей.
+    cit[id] -- родственники конкретного id
+    """
+    #
     cit = {}
     for citizen in citizens:
         # todo: Заюзать внутренний метод citizen
