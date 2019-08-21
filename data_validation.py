@@ -7,8 +7,14 @@ from citizen_mdl import unpack_relatives_to_int_list
 
 
 def validate_date(date_string):
-    day, month, year = map(int, date_string.split('.'))
-    datetime.date(year, month, day)
+    try:
+        day, month, year = map(int, date_string.split('.'))
+        date = datetime.datetime(year, month, day)
+        cur_date = datetime.datetime.today()
+        if date > cur_date:
+            raise ValueError("Dates are in non-persistent state. Wrong Data")
+    except ValueError as e:
+        raise e
 
 
 def validate_id_not_in_relatives(cit_id, relatives_ids):
