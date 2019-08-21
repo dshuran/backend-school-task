@@ -64,16 +64,19 @@ def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
     if citizen is None:
         raise ValueError
     else:
-        relatives_list = unpack_relatives_to_int_list(citizen.relatives)
-        relatives_list.remove(citizen_id)
-        packed_relatives = pack_relatives_to_db_format(relatives_list)
-        citizen.relatives = packed_relatives
+        try:
+            relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+            relatives_list.remove(citizen_id)
+            packed_relatives = pack_relatives_to_db_format(relatives_list)
+            citizen.relatives = packed_relatives
+        except ValueError as e:
+            raise e
 
 
 def add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id):
     citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
     if citizen is None:
-        raise ValueError
+        raise ValueError("Citizens is none here!")
     else:
         relatives_list = unpack_relatives_to_int_list(citizen.relatives)
         relatives_list.append(citizen_id)
@@ -117,10 +120,14 @@ def main(import_id, citizen_id):
             prev_relatives = set(prev_relatives_list)
             cur_relatives = set(cur_relatives_list)
             # todo: Нужно ли посортить?
-            for relative_id in prev_relatives.difference(cur_relatives):
-                remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
-            for relative_id in cur_relatives.difference(prev_relatives):
-                add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
+            try:
+                for relative_id in prev_relatives.difference(cur_relatives):
+                    remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
+                for relative_id in cur_relatives.difference(prev_relatives):
+                    add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
+            except ValueError as e:
+                print(e)
+                abort(400)
             citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
         db.session.commit()
         res = {
