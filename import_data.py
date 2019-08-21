@@ -1,13 +1,12 @@
 from flask import request, abort, jsonify
-from dataset_mdl import Dataset
-from citizen_mdl import Citizen, id_separator, pack_relatives_to_db_format
-from dataset_counter_mdl import get_dataset_counter
 from jsonschema import validate, exceptions
-from database import db
 
+from citizen_mdl import Citizen, pack_relatives_to_db_format
 from data_validation import validate_relatives, validate_citizens_ids_intersection, \
-     do_single_citizen_validations
-
+    do_single_citizen_validations
+from database import db
+from dataset_counter_mdl import get_dataset_counter
+from dataset_mdl import Dataset
 
 main_schema = {
     "type": "object",
