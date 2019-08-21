@@ -8,71 +8,75 @@ from database import db
 from data_validation import validate_relatives, validate_citizens_ids_intersection, \
      do_single_citizen_validations
 
-dataset_import_outer_schema = {
+
+main_schema = {
     "type": "object",
     "properties": {
         "citizens": {
             "type": "array",
+            "items": {"$ref": "#/definitions/inner_schema"},
             "minItems": 1
         }
     },
     "required": ["citizens"],
-    "additionalProperties": False
-}
-
-dataset_import_inner_schema = {
-    "type": "object",
-    "properties": {
-        "citizen_id": {
-            "type": "number",
-            "minimum": 0
-        },
-        "town": {
-            "type": "string",
-            "minLength": 1
-        },
-        "street": {
-            "type": "string",
-            "minLength": 1
-        },
-        "building": {
-            "type": "string",
-            "minLength": 1
-        },
-        "apartment": {
-            "type": "number",
-            "minimum": 0
-        },
-        "name": {
-            "type": "string",
-            "minLength": 1
-        },
-        "birth_date": {
-            "type": "string",
-            "pattern": "^\d{2}\.\d{2}\.\d{4}$"
-        },
-        "gender": {
-            "type": "string",
-            "pattern": "^(male|female)$"
-        },
-        "relatives": {
-            "type": "array",
-            "items": {
-                "type": "number"
-            },
-            "uniqueItems": True
-        }
-    },
-    "required": ["citizen_id", "town", "street", "building", "apartment", "name", "birth_date", "gender", "relatives"],
     "additionalProperties": False,
+    "definitions": {
+        "inner_schema": {
+            "type": "object",
+            "properties": {
+                "citizen_id": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "town": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "street": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "building": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "apartment": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "birth_date": {
+                    "type": "string",
+                    "pattern": "^\d{2}\.\d{2}\.\d{4}$"
+                },
+                "gender": {
+                    "type": "string",
+                    "pattern": "^(male|female)$"
+                },
+                "relatives": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "uniqueItems": True
+                }
+            },
+            "required": ["citizen_id", "town", "street", "building", "apartment", "name", "birth_date", "gender", "relatives"],
+            "additionalProperties": False
+        }
+    }
 }
 
 
 def main():
-    if not request.json:  # more checks
-        abort(400)
     try:
-        validate(instance=request.json, schema=dataset_import_outer_schema)
+        if request.get_json(silent=True) is None:  # more checks
+            print('there! In parsing JSON')
+            abort(400)
+        validate(instance=request.json, schema=main_schema)
     except (exceptions.ValidationError, ValueError) as e:
         print(e)
         abort(400)
@@ -84,7 +88,7 @@ def main():
     # todo: Для этого нужно просто чек, что request.json['citizens'] type object в другой схеме
     for citizen_obj in citizens:
         try:
-            validate(instance=citizen_obj, schema=dataset_import_inner_schema)
+            # validate(instance=citizen_obj, schema=dataset_import_inner_schema)
             # Мы знаем, что как минимум, relatives - список интов.
             do_single_citizen_validations(citizen_obj)
             # handle in except any other error
@@ -105,7 +109,8 @@ def main():
     try:
         validate_citizens_ids_intersection(dataset.citizens)
         validate_relatives(dataset.citizens)
-    except (ValueError, KeyError):
+    except (ValueError, KeyError) as e:
+        print(e)
         abort(400)
     # Данные корректны, добавим в бд.
     db.session.add(dataset)
