@@ -7,6 +7,7 @@ from citizen_mdl import unpack_relatives_to_int_list
 
 # Проверка даты на корректность
 def validate_date(date_string):
+    # todo: возможно убрать этот try/except
     try:
         day, month, year = map(int, date_string.split('.'))
         date = datetime.datetime(year, month, day)
