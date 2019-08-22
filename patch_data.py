@@ -11,15 +11,18 @@ dataset_patch_schema = {
     "properties": {
         "town": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 256
         },
         "street": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 256
         },
         "building": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 256
         },
         "apartment": {
             "type": "number",
@@ -27,7 +30,8 @@ dataset_patch_schema = {
         },
         "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 256
         },
         "birth_date": {
             "type": "string",
