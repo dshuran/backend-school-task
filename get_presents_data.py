@@ -1,7 +1,10 @@
+from flask import jsonify
+
 from citizen_mdl import Citizen
 from dataset_mdl import Dataset
 
 
+# Получает месяц типа int из строковой даты
 def get_month_from_date(date_string):
     day, month, year = map(int, date_string.split('.'))
     assert isinstance(month, int)
@@ -9,7 +12,7 @@ def get_month_from_date(date_string):
 
 
 # Получим месяц рождения жителя в диапазоне
-# от 1 до 12, используя его id.
+# от 1 до 12, используя его id, тип int
 def get_birthday_month(relative_id, import_id):
     relative = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
     if relative is None:
@@ -19,8 +22,30 @@ def get_birthday_month(relative_id, import_id):
 
 
 def main(import_id):
+    """
+    dataset - одна из выгрузок.
+
+    citizens - жители, которые были перечислены в
+    конкретной выгрузке с id = import_id
+
+    presents_number - лист из 13 элементов, каждый из которых содержит словарь.
+    presents_number[month][citizen_id] - кол-во подарков, которые житель с id = citizen_id
+    будет покупать в месяце month.
+
+    Каждый из соовтетствующих словарей внутри presents_number имеет следующую структуру:
+    Ключ: id жителя.
+    Значение: кол-во подарков (см. описание presents_number выше).
+
+    res - словарь, необходимый для вывода информации в соответствующем формате.
+    Если в данном месяце нет жителей, которые будут покупать подарки, то значением ключа
+    является пустой массив (пример: res[month] = []). Если же жители, которые соберутся
+    в магазин за подарками присутствуют, значением является res_atom -- структура, содержащая
+    в себе citizen_id - id жителя и presents - кол-во подарков
+
+    """
     dataset = Dataset.query.filter_by(id=import_id).first()
     citizens = dataset.citizens
+    # Документация по presents_number выше.
     presents_number = []
     for i in range(13):
         presents_number.append({})
@@ -35,8 +60,7 @@ def main(import_id):
                 presents_number[month][citizen.citizen_id] += 1
             else:
                 presents_number[month][citizen.citizen_id] = 1
-    # Словарь: "номер от 1 до 12": лист с объектами
-    # todo: Больше документации
+    # См. документацию выше по res.
     res = {}
     for month in range(1, 12 + 1):
         if len(presents_number[month]) == 0:
@@ -50,8 +74,9 @@ def main(import_id):
                     "presents": presents_number[month][citizen_id]
                 }
                 res[month].append(res_atom)
+    # Финальный словарь, который будем выводить.
     final_output = {
         "data": res
     }
-    return final_output, 200
+    return jsonify(final_output), 200
 
