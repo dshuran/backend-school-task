@@ -1,8 +1,8 @@
-from flask import abort, request, jsonify
+from flask import request, jsonify
 from jsonschema import validate
 
-from citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
-from data_validation import validate_date, validate_id_not_in_relatives
+from Model.citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
+from Controller.data_validation import validate_date, validate_id_not_in_relatives
 from database import db
 
 # Схема валидации для PATCH запроса

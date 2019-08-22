@@ -1,6 +1,6 @@
 import datetime
 
-from citizen_mdl import unpack_relatives_to_int_list
+from Model.citizen_mdl import unpack_relatives_to_int_list
 
 
 # Сначала общие валидации конкретного жителя

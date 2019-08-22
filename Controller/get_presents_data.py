@@ -1,7 +1,7 @@
 from flask import jsonify
 
-from citizen_mdl import Citizen
-from dataset_mdl import Dataset
+from Model.citizen_mdl import Citizen
+from Model.dataset_mdl import Dataset
 
 
 # Получает месяц типа int из строковой даты

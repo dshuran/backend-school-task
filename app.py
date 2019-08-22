@@ -2,11 +2,7 @@ import os.path
 
 from flask import Flask, abort
 
-import get_data
-import get_percentile_data
-import get_presents_data
-import import_data
-import patch_data
+from Controller import get_percentile_data, patch_data, import_data, get_presents_data, get_data
 import traceback
 from database import db
 

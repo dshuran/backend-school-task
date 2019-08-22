@@ -1,12 +1,12 @@
-from flask import request, abort, jsonify
-from jsonschema import validate, exceptions
+from flask import request, jsonify
+from jsonschema import validate
 
-from citizen_mdl import Citizen, pack_relatives_to_db_format
-from data_validation import validate_relatives, validate_citizens_ids_intersection, \
+from Model.citizen_mdl import Citizen, pack_relatives_to_db_format
+from Controller.data_validation import validate_relatives, validate_citizens_ids_intersection, \
     do_single_citizen_validations
 from database import db
-from dataset_counter_mdl import get_dataset_counter
-from dataset_mdl import Dataset
+from Model.dataset_counter_mdl import get_dataset_counter
+from Model.dataset_mdl import Dataset
 
 # Схема валидации для IMPORT запроса.
 import_schema = {
