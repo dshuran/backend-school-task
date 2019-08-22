@@ -3,6 +3,7 @@ import os.path
 from flask import Flask, abort
 
 import get_data
+import get_percentile_data
 import get_presents_data
 import import_data
 import patch_data
@@ -48,6 +49,14 @@ def do_get_presents_data(import_id):
     # todo обёртку try/except для разных исключений.
     try:
         return get_presents_data.main(int(import_id))
+    except Exception as e:
+        handle_exception(e)
+
+
+@app.route('/imports/<import_id>/towns/stat/percentile/age', methods=['GET'])
+def do_get_percentile_data(import_id):
+    try:
+        return get_percentile_data.main(int(import_id))
     except Exception as e:
         handle_exception(e)
 
