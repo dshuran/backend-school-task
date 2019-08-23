@@ -74,7 +74,6 @@ def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
         try:
             relatives_list = unpack_relatives_to_int_list(citizen.relatives)
             relatives_list.remove(citizen_id)
-            relatives_list.sort()
             packed_relatives = pack_relatives_to_db_format(relatives_list)
             citizen.relatives = packed_relatives
         except ValueError as e:
@@ -90,7 +89,6 @@ def add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id):
     else:
         relatives_list = unpack_relatives_to_int_list(citizen.relatives)
         relatives_list.append(citizen_id)
-        relatives_list.sort()
         packed_relatives = pack_relatives_to_db_format(relatives_list)
         citizen.relatives = packed_relatives
 
