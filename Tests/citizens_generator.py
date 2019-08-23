@@ -57,6 +57,8 @@ def get_correct_citizen():
     }
     return citizen
 
+# todo: сделать incorrent citizen
+
 
 def main():
     for i in range(2):

@@ -77,6 +77,8 @@ import_schema = {
 
 def main():
     # Пытаемся парсить пришедие данные, как JSON.
+    print(request.headers)
+    print(request.get_data())
     if request.get_json(silent=True) is None:
         # Если не удалось распарсить, выбрасываем исключение.
         raise ValueError("request data can't be parsed as json")
