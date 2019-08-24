@@ -1,7 +1,11 @@
+import json
+import random
+
 import names
 import datetime
 
 from faker import Faker
+from flask import jsonify
 
 fake = Faker()
 
@@ -60,9 +64,43 @@ def get_correct_citizen():
 # todo: сделать incorrent citizen
 
 
+def fill_list_with_relatives(citizens, citizens_ids):
+    # id -> список айдишников родственников
+    citizen_relatives = {}
+    for cit_id in citizens:
+        relatives_amount = get_int(0, len(citizens_ids) - 1)
+        print('amount = ', relatives_amount)
+        citizens_pull = set(citizens_ids)
+        citizens_pull.remove(cit_id)
+        for i in range(relatives_amount):
+            random_id = random.choice(tuple(citizens_pull))
+            citizens_pull.remove(random_id)
+            if cit_id not in citizens[random_id]['relatives']:
+                citizens[random_id]['relatives'].append(cit_id)
+            if random_id not in citizens[cit_id]['relatives']:
+                citizens[cit_id]['relatives'].append(random_id)
+
+
+def get_random_post_data(citizens_amount):
+    citizens = {}
+    for i in range(citizens_amount):
+        citizen = get_correct_citizen()
+        citizens[citizen['citizen_id']] = citizen
+    citizens_ids = []
+    for cit_id in citizens:
+        citizens_ids.append(cit_id)
+    fill_list_with_relatives(citizens=citizens, citizens_ids=citizens_ids)
+    citizens_list = []
+    for cit_id in citizens:
+        citizens_list.append(citizens[cit_id])
+    res = {
+        "citizens": citizens_list
+    }
+    return json.dumps(res)
+
+
 def main():
-    for i in range(2):
-        print(get_correct_citizen())
+    print(get_random_post_data(4))
 
 
 if __name__ == '__main__':
