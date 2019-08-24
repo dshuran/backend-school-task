@@ -15,7 +15,6 @@ db.init_app(app)
 
 @app.route('/imports', methods=['POST'])
 def do_import_data():
-    # todo обёртку try/except для разных исключений.
     try:
         return import_data.main()
     except Exception as e:
@@ -24,7 +23,6 @@ def do_import_data():
 
 @app.route('/imports/<import_id>/citizens', methods=['GET'])
 def do_get_data(import_id):
-    # todo обёртку try/except для разных исключений.
     try:
         return get_data.main(int(import_id))
     except Exception as e:
@@ -33,7 +31,6 @@ def do_get_data(import_id):
 
 @app.route('/imports/<import_id>/citizens/<citizen_id>', methods=['PATCH'])
 def do_patch_data(import_id, citizen_id):
-    # todo обёртку try/except для разных исключений.
     try:
         return patch_data.main(int(import_id), int(citizen_id))
     except Exception as e:
@@ -42,7 +39,6 @@ def do_patch_data(import_id, citizen_id):
 
 @app.route('/imports/<import_id>/citizens/birthdays', methods=['GET'])
 def do_get_presents_data(import_id):
-    # todo обёртку try/except для разных исключений.
     try:
         return get_presents_data.main(int(import_id))
     except Exception as e:
@@ -64,6 +60,7 @@ def setup_database():
 
 def handle_exception(e):
     print(e)
+    db.session.rollback()
     print(traceback.format_exc())
     abort(400)
 

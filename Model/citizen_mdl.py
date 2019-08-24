@@ -1,26 +1,23 @@
+from Model.citizens_relations_mdl import CitizensRelations
 from database import db
 
-id_separator = '*'
 
-
-def pack_relatives_to_db_format(relatives_list):
+def get_relatives_as_int_list(citizen_id, dataset_id):
     """
-    Упакуем родственников в необходимый для БД формат.
-    В будущем реализация может меняться, нужно будет поменять
-    только тело данной функции.
-    """
-    return id_separator.join(map(str, relatives_list))
-
-
-def unpack_relatives_to_int_list(db_relatives):
-    """
-    Распакуем пользователей в лист с переменными типа int.
+    Распакуем жителей в лист с переменными типа int, где
+    значение - id жителя.
     Реализация может меняться, при необходимости можно будет
     поменять тело данной функции.
+
+    Более подробную документацию см.
+    в описании к CitizensRelations.
     """
-    if len(db_relatives) > 0:
-        return list(map(int, db_relatives.split(id_separator)))
-    return []
+    citizen_relations_objects = CitizensRelations.query.filter_by(
+        dataset_id=dataset_id, citizen_id=citizen_id).all()
+    relatives_list = []
+    for relations_obj in citizen_relations_objects:
+        relatives_list.append(relations_obj.relative_id)
+    return relatives_list
 
 
 class Citizen(db.Model):
@@ -36,14 +33,13 @@ class Citizen(db.Model):
     name = db.Column(db.String)
     birth_date = db.Column(db.String)
     gender = db.Column(db.String)
-    relatives = db.Column(db.String)
 
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
     # Создаём двухстороннюю ссылку на конкретную выгрузку (dataset)
     dataset = db.relationship('Dataset', backref=db.backref('citizens'))
 
     def get_relatives_list(self):
-        return unpack_relatives_to_int_list(self.relatives)
+        return get_relatives_as_int_list(citizen_id=self.citizen_id, dataset_id=self.dataset_id)
 
     def json_representation(self):
         relatives_list = self.get_relatives_list()
