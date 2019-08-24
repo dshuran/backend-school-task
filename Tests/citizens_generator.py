@@ -90,7 +90,7 @@ def fill_list_with_relatives(citizens, citizens_ids):
                 citizens[cit_id]['relatives'].append(random_id)
 
 
-def get_random_post_data(citizens_amount):
+def get_random_good_post_data(citizens_amount):
     citizens = {}
     for i in range(citizens_amount):
         citizen = get_correct_citizen()
@@ -108,20 +108,32 @@ def get_random_post_data(citizens_amount):
     return json.dumps(res)
 
 
-def generate_post_requests_input():
+def get_random_bad_post_data(citizens_amount):
+    pass
+
+
+def get_random_post_data(citizens_amount, good):
+    if good:
+        return get_random_good_post_data(citizens_amount)
+    else:
+        return get_random_bad_post_data(citizens_amount)
+
+
+def generate_post_requests_input(requests_amount, citizens_amount):
     path = os.path.dirname(os.path.abspath(__file__))
     post_requests_input_dir = os.path.join('post_requests', 'input')
     final_path = os.path.join(path, post_requests_input_dir)
     counter = 1
-    for i in range(5):
+    for i in range(requests_amount):
         filename = 'post_input' + str(counter) + '.txt'
         counter += 1
         with open(os.path.join(final_path, filename), 'w') as temp_file:
-            temp_file.write(get_random_post_data(4))
+            temp_file.write(get_random_post_data(citizens_amount, True))
 
 
 def main():
-    generate_post_requests_input()
+    generate_post_requests_input(20, 2000)
+    print('Citizens generated!')
 
 
 if __name__ == '__main__':
