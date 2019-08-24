@@ -74,11 +74,11 @@ def get_correct_citizen():
 # todo: сделать incorrent citizen
 
 
-def fill_list_with_relatives(citizens, citizens_ids):
+def fill_list_with_relatives(citizens, citizens_ids, max_relatives):
     # id -> список айдишников родственников
     citizen_relatives = {}
     for cit_id in citizens:
-        relatives_amount = get_int(0, len(citizens_ids) - 1)
+        relatives_amount = get_int(0, max_relatives)
         citizens_pull = set(citizens_ids)
         citizens_pull.remove(cit_id)
         for i in range(relatives_amount):
@@ -90,7 +90,7 @@ def fill_list_with_relatives(citizens, citizens_ids):
                 citizens[cit_id]['relatives'].append(random_id)
 
 
-def get_random_good_post_data(citizens_amount):
+def get_random_good_post_data(citizens_amount, max_relatives):
     citizens = {}
     for i in range(citizens_amount):
         citizen = get_correct_citizen()
@@ -98,7 +98,7 @@ def get_random_good_post_data(citizens_amount):
     citizens_ids = []
     for cit_id in citizens:
         citizens_ids.append(cit_id)
-    fill_list_with_relatives(citizens=citizens, citizens_ids=citizens_ids)
+    fill_list_with_relatives(citizens=citizens, citizens_ids=citizens_ids, max_relatives=max_relatives)
     citizens_list = []
     for cit_id in citizens:
         citizens_list.append(citizens[cit_id])
@@ -112,14 +112,14 @@ def get_random_bad_post_data(citizens_amount):
     pass
 
 
-def get_random_post_data(citizens_amount, good):
+def get_random_post_data(citizens_amount, good, max_relatives):
     if good:
-        return get_random_good_post_data(citizens_amount)
+        return get_random_good_post_data(citizens_amount, max_relatives)
     else:
         return get_random_bad_post_data(citizens_amount)
 
 
-def generate_post_requests_input(requests_amount, citizens_amount):
+def generate_post_requests_input(requests_amount, citizens_amount, max_relatives):
     path = os.path.dirname(os.path.abspath(__file__))
     post_requests_input_dir = os.path.join('post_requests', 'input')
     final_path = os.path.join(path, post_requests_input_dir)
@@ -128,11 +128,11 @@ def generate_post_requests_input(requests_amount, citizens_amount):
         filename = 'post_input' + str(counter) + '.txt'
         counter += 1
         with open(os.path.join(final_path, filename), 'w') as temp_file:
-            temp_file.write(get_random_post_data(citizens_amount, True))
+            temp_file.write(get_random_post_data(citizens_amount, True, max_relatives))
 
 
 def main():
-    generate_post_requests_input(20, 20)
+    generate_post_requests_input(1, 1000, 5)
     print('Citizens generated!')
 
 
