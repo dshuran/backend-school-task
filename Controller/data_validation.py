@@ -1,13 +1,11 @@
 import datetime
 
+from Model.citizen_mdl import unpack_relatives_to_int_list
 
 
 # Сначала общие валидации конкретного жителя
 
 # Проверка даты на корректность
-from Model.citizens_relations_mdl import CitizensRelations
-
-
 def validate_date(date_string):
     # todo: возможно убрать этот try/except
     try:
@@ -34,7 +32,7 @@ def do_single_citizen_validations(citizen_obj):
 # Дальше идут валидации применительно к POST запросу
 
 
-# Проверяет на наличие одинаковых id среди всех жителей.
+# Проверяет на наличие одинаковых id в списке.
 def validate_citizens_ids_intersection(citizens):
     users = set()
     for citizen in citizens:
@@ -43,26 +41,27 @@ def validate_citizens_ids_intersection(citizens):
         users.add(citizen.citizen_id)
 
 
-def validate_relatives(citizens, import_id):
+def validate_relatives(citizens):
     """
     Проверяет, что родственники консистентны по отношению друг к другу.
-    Т.е. если А -- родственник Б, то и Б -- родственник А
+    Т.е. если А -- родственник Б, то и А должен
+    иметь в родственниках Б.
 
-    Больше информации см. в описании к CitizensRelations
+    cit[id] -- интовый set айдишников пользователей.
+    cit[id] -- родственники конкретного id
     """
     #
+    cit = {}
     for citizen in citizens:
-        # Получили список всех родственников
-        citizen_relations_objects = CitizensRelations.query.filter_by(
-            dataset_id=import_id, citizen_id=citizen.citizen_id).all()
-        # Для каждого родственника данного жителя пройдемся в цикле.
-        for relations_obj in citizen_relations_objects:
-            # Получаем id одного из родственников.
-            relative_id = relations_obj.relative_id
-            # Проверяем, что мы тоже находимся
-            # в списке родственников нашего родственника
-            relative_relations_obj = CitizensRelations.query.filter_by(
-                dataset_id=import_id, citizen_id=relative_id, relative_id=citizen.citizen_id).first()
-            if relative_relations_obj is None:
-                raise ValueError("Relatives in non-persistent state!")
+        # todo: Заюзать внутренний метод citizen
+        # todo: Точнее static функцию
+        users = set(unpack_relatives_to_int_list(citizen.relatives))
+        cit[citizen.citizen_id] = users
+    try:
+        for cit_id in cit:
+            for relative_id in cit[cit_id]:
+                if cit_id not in cit[relative_id]:
+                    raise ValueError("Relatives ids are in non-persistent state")
+    except KeyError:
+        raise KeyError("Trying to use id that doesn't exist as a key")
 

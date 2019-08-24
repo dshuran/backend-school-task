@@ -1,9 +1,8 @@
 from flask import request, jsonify
 from jsonschema import validate
 
-from Model.citizen_mdl import Citizen
+from Model.citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
 from Controller.data_validation import validate_date, validate_id_not_in_relatives
-from Model.citizens_relations_mdl import CitizensRelations
 from database import db
 
 # Схема валидации для PATCH запроса
@@ -66,20 +65,32 @@ dataset_patch_schema = {
 
 
 # Удаляет citizen_id из списка родственников пользователя с id = relative_id
-def remove_citizen_from_relative_list(relative_id, citizen_id, import_id):
-    relative_relations_obj = CitizensRelations.query.filter_by(
-        dataset_id=import_id, citizen_id=relative_id, relative_id=citizen_id).first()
-    if relative_relations_obj is None:
-        raise ValueError("Cannot find suck relations object!")
+def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
+    citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
+    print(citizen)
+    if citizen is None:
+        raise ValueError
     else:
-        db.session.delete(relative_relations_obj)
+        try:
+            relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+            relatives_list.remove(citizen_id)
+            packed_relatives = pack_relatives_to_db_format(relatives_list)
+            citizen.relatives = packed_relatives
+        except ValueError as e:
+            raise e
 
 
 # Добавляет в список родственников пользователя
 # с id = relative_id пользователя citizen_id
-def add_citizen_to_relative_list(relative_id, citizen_id, import_id):
-    relative_relations_obj = CitizensRelations(dataset_id=import_id, citizen_id=relative_id, relative_id=citizen_id)
-    db.session.add(relative_relations_obj)
+def add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id):
+    citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
+    if citizen is None:
+        raise ValueError("Citizens is none here!")
+    else:
+        relatives_list = unpack_relatives_to_int_list(citizen.relatives)
+        relatives_list.append(citizen_id)
+        packed_relatives = pack_relatives_to_db_format(relatives_list)
+        citizen.relatives = packed_relatives
 
 
 def main(import_id, citizen_id):
@@ -119,19 +130,18 @@ def main(import_id, citizen_id):
             citizen.gender = citizen_obj['gender']
         if 'relatives' in citizen_obj:
             # Получим два сета с id пользователей
-            prev_relatives_list = citizen.get_relatives_list()
+            prev_relatives_list = unpack_relatives_to_int_list(citizen.relatives)
             cur_relatives_list = citizen_obj['relatives']
             prev_relatives = set(prev_relatives_list)
             cur_relatives = set(cur_relatives_list)
+            # todo: Нужно ли посортить?
             # Получим разницу в обоих случаях и
-            # удалим/добавим необходимые записи для
-            # жителя и его родственника.
+            # удалим/добавим необходимые id
             for relative_id in prev_relatives.difference(cur_relatives):
-                remove_citizen_from_relative_list(relative_id=relative_id, citizen_id=citizen_id, import_id=import_id)
-                remove_citizen_from_relative_list(relative_id=citizen_id, citizen_id=relative_id, import_id=import_id)
+                remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id)
             for relative_id in cur_relatives.difference(prev_relatives):
-                add_citizen_to_relative_list(relative_id=relative_id, citizen_id=citizen_id, import_id=import_id)
-                add_citizen_to_relative_list(relative_id=citizen_id, citizen_id=relative_id, import_id=import_id)
+                add_cur_citizen_to_other_relative(relative_id, citizen_id, import_id)
+            citizen.relatives = pack_relatives_to_db_format(citizen_obj['relatives'])
         # Добавим в базу данных.
         db.session.commit()
         res = {

@@ -1,10 +1,9 @@
 from flask import request, jsonify
 from jsonschema import validate
 
-from Model.citizen_mdl import Citizen
+from Model.citizen_mdl import Citizen, pack_relatives_to_db_format
 from Controller.data_validation import validate_relatives, validate_citizens_ids_intersection, \
     do_single_citizen_validations
-from Model.citizens_relations_mdl import CitizensRelations
 from database import db
 from Model.dataset_counter_mdl import get_dataset_counter
 from Model.dataset_mdl import Dataset
@@ -78,8 +77,8 @@ import_schema = {
 
 def main():
     # Пытаемся парсить пришедие данные, как JSON.
-    # print(request.headers)
-    # print(request.get_data())
+    print(request.headers)
+    print(request.get_data())
     if request.get_json(silent=True) is None:
         # Если не удалось распарсить, выбрасываем исключение.
         raise ValueError("request data can't be parsed as json")
@@ -89,11 +88,7 @@ def main():
     # Получим счётчик из БД
     dataset_counter = get_dataset_counter()
     # Если будет неудача, то import_id не изменится
-    # Для этого нужен временный счётчик
-    dataset_tmp_counter = dataset_counter.counter + 1
-    dataset = Dataset(id=dataset_tmp_counter)
-    # Лист, который хранит объекты класса CitizensRelations
-    dataset_relations_list = []
+    dataset = Dataset(id=(dataset_counter.counter + 1))
     for citizen_obj in citizens:
         # Валидации для одного жителя.
         do_single_citizen_validations(citizen_obj)
@@ -106,27 +101,12 @@ def main():
             name=citizen_obj['name'],
             birth_date=citizen_obj['birth_date'],
             gender=citizen_obj['gender'],
+            relatives=pack_relatives_to_db_format(citizen_obj['relatives']),
             dataset=dataset)
-        for relative_id in citizen_obj['relatives']:
-            citizens_relations_obj = CitizensRelations(
-                dataset_id=dataset_tmp_counter, citizen_id=citizen_obj['citizen_id'], relative_id=relative_id)
-            db.session.add(citizens_relations_obj)
-            dataset_relations_list.append(citizens_relations_obj)
-    # Добавим объекты citizens_relations для данноый выгрузки в базу.
-    db.session.commit()
     # Валидации на возможные некорректные данные
     # пользователей в поле relatives
-    try:
-        validate_citizens_ids_intersection(dataset.citizens)
-        validate_relatives(dataset.citizens, dataset_tmp_counter)
-    except Exception as e:
-        # Если id родственников не прошли валидацию,
-        # то уберём из базы данных записи о связях
-        # в текущей выгрузке.
-        for citizens_relations_obj in dataset_relations_list:
-            db.session.delete(citizens_relations_obj)
-        db.session.commit()
-        raise e
+    validate_citizens_ids_intersection(dataset.citizens)
+    validate_relatives(dataset.citizens)
     # Данные корректны, добавим в бд.
     # Добавление происходит следующим образом:
     # каждому пользователю сопоставляется
