@@ -1,6 +1,7 @@
 import unittest
 import requests
 import json
+import os
 
 server_url = 'http://localhost:5000'
 
@@ -16,18 +17,31 @@ class TestGETCitizensRequest(unittest.TestCase):
             json.dump(parsed_json, outfile)
     """
 
-    def test_post_request(self):
-        with open('post_request.txt', 'r') as input_file:
+    def send_post_request(self, path, input_dirname, input_file_name, output_file_name):
+        print('testing ', os.path.join(path, input_dirname, input_file_name))
+        with open(os.path.join(path, input_dirname, input_file_name), 'r') as input_file:
             data = json.load(input_file)
         headers = {'content-type': 'application/json'}
-        print(data)
         response = requests.post(server_url + '/imports', data=json.dumps(data), headers=headers)
-        print(response.text)
+        # Тесты
         self.assertEqual(response.ok, True)
         parsed_json = json.loads(response.text)
+        output_dirname = 'output'
+        with open(os.path.join(path, output_dirname, output_file_name), 'w') as output_file:
+            json.dump(parsed_json, output_file)
 
-        with open('post_request_result.txt', 'w') as outfile:
-            json.dump(parsed_json, outfile)
+    def test_post_request(self):
+        print('POST TESTS (1)')
+        counter = 1
+        path = os.path.dirname(os.path.abspath(__file__))
+        post_dir = os.path.join(path, 'post_requests')
+        for input_file in os.listdir(os.path.join(post_dir, 'input')):
+            if input_file.endswith(".txt"):
+                output_file = "post_result" + str(counter) + ".txt"
+                self.send_post_request(post_dir, 'input', input_file, output_file)
+                counter += 1
+            else:
+                continue
 
 
 if __name__ == '__main__':

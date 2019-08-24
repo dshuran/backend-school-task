@@ -1,4 +1,5 @@
 import json
+import os
 import random
 
 import names
@@ -8,6 +9,15 @@ from faker import Faker
 from flask import jsonify
 
 fake = Faker()
+
+
+g_ids_pull = 0
+
+
+def get_id():
+    global g_ids_pull
+    g_ids_pull += 1
+    return g_ids_pull
 
 
 def get_int(min_len=0, max_len=100000):
@@ -49,7 +59,7 @@ def get_birth_date():
 def get_correct_citizen():
     citizen_gender = get_gender()
     citizen = {
-        "citizen_id": get_int(),
+        "citizen_id": get_id(),
         "town": get_town(),
         "street": get_street(),
         "building": get_building_number(),
@@ -69,7 +79,6 @@ def fill_list_with_relatives(citizens, citizens_ids):
     citizen_relatives = {}
     for cit_id in citizens:
         relatives_amount = get_int(0, len(citizens_ids) - 1)
-        print('amount = ', relatives_amount)
         citizens_pull = set(citizens_ids)
         citizens_pull.remove(cit_id)
         for i in range(relatives_amount):
@@ -99,8 +108,20 @@ def get_random_post_data(citizens_amount):
     return json.dumps(res)
 
 
+def generate_post_requests_input():
+    path = os.path.dirname(os.path.abspath(__file__))
+    post_requests_input_dir = os.path.join('post_requests', 'input')
+    final_path = os.path.join(path, post_requests_input_dir)
+    counter = 1
+    for i in range(5):
+        filename = 'post_input' + str(counter) + '.txt'
+        counter += 1
+        with open(os.path.join(final_path, filename), 'w') as temp_file:
+            temp_file.write(get_random_post_data(4))
+
+
 def main():
-    print(get_random_post_data(4))
+    generate_post_requests_input()
 
 
 if __name__ == '__main__':
