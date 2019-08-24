@@ -7,7 +7,7 @@ import traceback
 from database import db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:benben12@localhost:5432/'
 app.config['JSON_SORT_KEYS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
