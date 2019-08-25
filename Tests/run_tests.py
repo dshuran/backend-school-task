@@ -34,7 +34,9 @@ class TestGETCitizensRequest(unittest.TestCase):
                              request_dirname='post_requests', command='POST', request_url='/imports')
 
     def test_requests(self):
-        for cit_id in range(1, 50):
+        min_id = 1
+        max_id = 2
+        for cit_id in range(min_id, max_id + 1):
             self.do_post_request()
             self.do_patch_request(cit_id)
             self.do_get_full_request(cit_id)

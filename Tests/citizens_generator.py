@@ -69,7 +69,10 @@ def get_correct_citizen():
     }
     return citizen
 
-# todo: сделать incorrent citizen
+
+def get_incorrect_citizen():
+    citizen = get_correct_citizen()
+    citizen.gender = 'super'
 
 
 def fill_list_with_relatives(citizens, citizens_ids, max_relatives):
