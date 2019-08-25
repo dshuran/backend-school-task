@@ -13,12 +13,8 @@ def get_month_from_date(date_string):
 
 # Получим месяц рождения жителя в диапазоне
 # от 1 до 12, используя его id, тип int
-def get_birthday_month(relative_id, import_id):
-    relative = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
-    if relative is None:
-        raise ValueError("relative is None!")
-    else:
-        return get_month_from_date(relative.birth_date)
+def get_birthday_month(relative_id, citizens_birth_dates):
+    return get_month_from_date(citizens_birth_dates[relative_id])
 
 
 def main(import_id):
@@ -45,21 +41,27 @@ def main(import_id):
     """
     dataset = Dataset.query.filter_by(id=import_id).first()
     citizens = dataset.citizens
+    # id - "дата рождения"
+    citizens_births_dates = {}
+    for citizen in citizens:
+        citizens_births_dates[citizen.citizen_id] = citizen.birth_date
     # Документация по presents_number выше.
     presents_number = []
     for i in range(13):
         presents_number.append({})
     for citizen in citizens:
+        print(citizen.citizen_id)
         # todo: в остальных местах такую же конструкцию с get_relatives_list
         relatives_list = citizen.get_relatives_list()
         for relative_id in relatives_list:
             assert isinstance(relative_id, int)
-            month = get_birthday_month(relative_id, import_id)
+            month = get_birthday_month(relative_id, citizens_births_dates)
             assert isinstance(month, int)
             if citizen.citizen_id in presents_number[month]:
                 presents_number[month][citizen.citizen_id] += 1
             else:
                 presents_number[month][citizen.citizen_id] = 1
+    print('THERE')
     # См. документацию выше по res.
     res = {}
     for month in range(1, 12 + 1):
@@ -79,4 +81,3 @@ def main(import_id):
         "data": res
     }
     return jsonify(final_output), 200
-

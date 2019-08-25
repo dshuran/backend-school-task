@@ -1,3 +1,5 @@
+from sqlalchemy.dialects.postgresql import ARRAY
+
 from database import db
 
 id_separator = '*'
@@ -9,7 +11,7 @@ def pack_relatives_to_db_format(relatives_list):
     В будущем реализация может меняться, нужно будет поменять
     только тело данной функции.
     """
-    return id_separator.join(map(str, relatives_list))
+    return relatives_list
 
 
 def unpack_relatives_to_int_list(db_relatives):
@@ -18,9 +20,7 @@ def unpack_relatives_to_int_list(db_relatives):
     Реализация может меняться, при необходимости можно будет
     поменять тело данной функции.
     """
-    if len(db_relatives) > 0:
-        return list(map(int, db_relatives.split(id_separator)))
-    return []
+    return db_relatives
 
 
 class Citizen(db.Model):
@@ -36,7 +36,7 @@ class Citizen(db.Model):
     name = db.Column(db.String)
     birth_date = db.Column(db.String)
     gender = db.Column(db.String)
-    relatives = db.Column(db.String)
+    relatives = db.Column(ARRAY(db.Integer))
 
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), primary_key=True)
     # Создаём двухстороннюю ссылку на конкретную выгрузку (dataset)

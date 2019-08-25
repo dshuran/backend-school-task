@@ -1,9 +1,8 @@
-import os.path
+import traceback
 
 from flask import Flask, abort
 
 from Controller import get_percentile_data, patch_data, import_data, get_presents_data, get_data
-import traceback
 from database import db
 
 app = Flask(__name__)
