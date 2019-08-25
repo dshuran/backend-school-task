@@ -38,7 +38,7 @@ class TestGETCitizensRequest(unittest.TestCase):
         max_id = 2
         for cit_id in range(min_id, max_id + 1):
             self.do_post_request()
-            self.do_patch_request(cit_id)
+            # self.do_patch_request(cit_id)
             self.do_get_full_request(cit_id)
             self.do_get_percentiles_request(cit_id)
             self.do_get_presents_request(cit_id)
