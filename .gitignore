@@ -125,5 +125,6 @@ dmypy.json
 
 .idea
 *.dt
+*.db
 *.txt
 !requirements.txt

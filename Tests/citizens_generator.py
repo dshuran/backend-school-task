@@ -1,12 +1,10 @@
+import datetime
 import json
 import os
 import random
 
 import names
-import datetime
-
 from faker import Faker
-from flask import jsonify
 
 fake = Faker()
 
