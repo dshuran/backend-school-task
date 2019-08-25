@@ -10,17 +10,17 @@ class TestGETCitizensRequest(unittest.TestCase):
 
     def do_get_full_request(self, import_id):
         self.requests_tester(welcome_message='GET FULL REQUEST TESTS',
-                             request_dirname='get_full_requests', command='GET', request_url='/imports/1/citizens')
+                             request_dirname='get_full_requests', command='GET', request_url='/imports/' + str(import_id) + '/citizens')
 
     def do_get_presents_request(self, import_id):
         self.requests_tester(welcome_message='GET PRESENTS REQUEST TESTS',
                              request_dirname='get_presents_requests', command='GET',
-                             request_url='/imports/1/citizens/birthdays')
+                             request_url='/imports/' + str(import_id) + '/citizens/birthdays')
 
     def do_get_percentiles_request(self, import_id):
         self.requests_tester(welcome_message='GET PERCENTILES REQUEST TESTS',
                              request_dirname='get_percentiles_requests', command='GET',
-                             request_url='/imports/1/towns/stat/percentile/age')
+                             request_url='/imports/' + str(import_id) + '/towns/stat/percentile/age')
 
     def do_patch_request(self, import_id):
         citizen_id = 1
