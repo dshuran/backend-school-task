@@ -40,7 +40,7 @@ class TestGETCitizensRequest(unittest.TestCase):
             self.do_get_percentiles_request(cit_id)
             self.do_get_presents_request(cit_id)
 
-    def request_sender(self, path, input_file_name, output_file_name, command, request_url):
+    def request_sender(self, path, input_file_name, output_file_name, command, request_url, good_request=True):
         input_dirname = 'input'
         full_filename = os.path.join(path, input_dirname, input_file_name)
         print('testing ', full_filename)
@@ -51,8 +51,15 @@ class TestGETCitizensRequest(unittest.TestCase):
             response = requests.post(server_url + request_url, data=json.dumps(data), headers=headers)
         elif command == 'PATCH':
             response = requests.patch(server_url + request_url, data=json.dumps(data), headers=headers)
+        elif command == 'GET':
+            response = requests.get(server_url + request_url, data=json.dumps(data), headers=headers)
+        else:
+            assert False
         # Тесты
-        self.assertEqual(response.ok, True)
+        if good_request:
+            self.assertEqual(response.ok, True)
+        else:
+            self.assertEqual(response.ok, False)
         parsed_json = json.loads(response.text)
         output_dirname = 'output'
         with open(os.path.join(path, output_dirname, output_file_name), 'w') as output_file:
