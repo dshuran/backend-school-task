@@ -30,15 +30,17 @@ class TestGETCitizensRequest(unittest.TestCase):
                              request_dirname='patch_requests', command='PATCH',
                              request_url='/imports/' + str(import_id) + '/citizens/' + str(citizen_id))
 
-    def do_post_request(self):
+    def do_post_requests(self):
         self.requests_tester(welcome_message='POST REQUEST TESTS',
                              request_dirname='post_requests', command='POST', request_url='/imports')
 
     def test_requests(self):
         min_id = 1
         max_id = 2
+        # Проходит по всем файлам в директории
+        self.do_post_requests()
+        # Запускает тесты только по определённым выгрузкам.
         for cit_id in range(min_id, max_id + 1):
-            self.do_post_request()
             self.do_patch_request(cit_id)
             self.do_get_full_request(cit_id)
             self.do_get_percentiles_request(cit_id)
