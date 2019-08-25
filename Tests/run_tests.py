@@ -4,8 +4,7 @@ import unittest
 
 import requests
 
-# todo: изменить url, если изменится хост/порт
-server_url = 'http://localhost:8080'
+server_url = 'http://0.0.0.0:8080'
 
 
 class TestGETCitizensRequest(unittest.TestCase):

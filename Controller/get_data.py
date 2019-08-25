@@ -16,5 +16,4 @@ def main(import_id):
         res = {
             "data": res_list
         }
-        # todo: вывод без переводов строки. Скорее всего уберётся в production-версии.
         return jsonify(res), 200
