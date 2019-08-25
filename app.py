@@ -1,3 +1,4 @@
+import os
 import traceback
 
 from flask import Flask, abort
@@ -6,10 +7,17 @@ from Controller import get_percentile_data, patch_data, import_data, get_present
 from database import db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:\\MyWorkRep\\backend-school-task\\database.dt'
+db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+db_uri = 'sqlite:///{}'.format(db_path)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['JSON_SORT_KEYS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+
+@app.route('/', methods=['GET'])
+def do_hello():
+    return 'Hello world!'
 
 
 @app.route('/imports', methods=['POST'])
@@ -68,12 +76,11 @@ def handle_exception(e):
 
 
 def main():
-    setup_database()
-    app.run(debug=True)
+    if not os.path.isfile(db_path):
+        setup_database()
+    # todo: поставить хост
+    app.run(port='8080', debug=True)
 
 
 if __name__ == '__main__':
     main()
-
-
-
