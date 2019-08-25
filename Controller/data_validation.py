@@ -7,15 +7,11 @@ from Model.citizen_mdl import unpack_relatives_to_int_list
 
 # Проверка даты на корректность
 def validate_date(date_string):
-    # todo: возможно убрать этот try/except
-    try:
-        day, month, year = map(int, date_string.split('.'))
-        date = datetime.datetime(year, month, day)
-        cur_date = datetime.datetime.today()
-        if date > cur_date:
-            raise ValueError("Dates are in non-persistent state. Wrong Data")
-    except ValueError as e:
-        raise e
+    day, month, year = map(int, date_string.split('.'))
+    date = datetime.datetime(year, month, day)
+    cur_date = datetime.datetime.today()
+    if date > cur_date:
+        raise ValueError("Dates are in non-persistent state. Wrong Data")
 
 
 # Проверка, что в родственниках нет самого себя
@@ -53,8 +49,6 @@ def validate_relatives(citizens):
     #
     cit = {}
     for citizen in citizens:
-        # todo: Заюзать внутренний метод citizen
-        # todo: Точнее static функцию
         users = set(unpack_relatives_to_int_list(citizen.relatives))
         cit[citizen.citizen_id] = users
     try:

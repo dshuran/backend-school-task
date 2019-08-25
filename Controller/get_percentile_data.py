@@ -30,8 +30,6 @@ def main(import_id):
         ages_in_town[citizen.town].append(citizen_age)
     res = []
     for town in ages_in_town:
-        print('HERE')
-        print(ages_in_town[town])
         p50 = np.percentile(ages_in_town[town], 50)
         p75 = np.percentile(ages_in_town[town], 75)
         p99 = np.percentile(ages_in_town[town], 99)

@@ -52,7 +52,6 @@ class TestGETCitizensRequest(unittest.TestCase):
             data = json.load(input_file)
         headers = {'content-type': 'application/json'}
         if command == 'POST':
-            print('SENDING POST')
             response = requests.post(server_url + request_url, data=json.dumps(data), headers=headers)
         elif command == 'PATCH':
             response = requests.patch(server_url + request_url, data=json.dumps(data), headers=headers)
@@ -60,13 +59,11 @@ class TestGETCitizensRequest(unittest.TestCase):
             response = requests.get(server_url + request_url, data=json.dumps(data), headers=headers)
         else:
             assert False
-        print('HERE')
         # Тесты
         if good_request:
             self.assertEqual(response.ok, True)
         else:
             self.assertEqual(response.ok, False)
-        print('AFTER ASSERTS!')
         parsed_json = json.loads(response.text)
         output_dirname = 'output'
         with open(os.path.join(path, output_dirname, output_file_name), 'w') as output_file:

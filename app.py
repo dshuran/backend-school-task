@@ -67,7 +67,7 @@ def main():
     if not os.path.isfile(db_path):
         setup_database()
     # todo: поставить хост
-    app.run(port='8080', debug=True)
+    app.run(port='8080')
 
 
 if __name__ == '__main__':

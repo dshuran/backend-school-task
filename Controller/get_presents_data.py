@@ -49,8 +49,6 @@ def main(import_id):
     for i in range(13):
         presents_number.append({})
     for citizen in citizens:
-        print(citizen.citizen_id)
-        # todo: в остальных местах такую же конструкцию с get_relatives_list
         relatives_list = citizen.get_relatives_list()
         for relative_id in relatives_list:
             assert isinstance(relative_id, int)
@@ -60,7 +58,6 @@ def main(import_id):
                 presents_number[month][citizen.citizen_id] += 1
             else:
                 presents_number[month][citizen.citizen_id] = 1
-    print('THERE')
     # См. документацию выше по res.
     res = {}
     for month in range(1, 12 + 1):

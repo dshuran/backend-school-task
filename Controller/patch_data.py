@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from jsonschema import validate
+from fastjsonschema import validate
 
 from Controller.data_validation import validate_date, validate_id_not_in_relatives
 from Model.citizen_mdl import Citizen, unpack_relatives_to_int_list, pack_relatives_to_db_format
@@ -67,7 +67,6 @@ dataset_patch_schema = {
 # Удаляет citizen_id из списка родственников пользователя с id = relative_id
 def remove_cur_citizen_from_other_relative(relative_id, citizen_id, import_id):
     citizen = Citizen.query.filter_by(citizen_id=relative_id, dataset_id=import_id).first()
-    print(citizen)
     if citizen is None:
         raise ValueError
     else:
@@ -107,7 +106,7 @@ def main(import_id, citizen_id):
     else:
         citizen_obj = request.json
         # Общая валидация PATCH-схемы.
-        validate(instance=citizen_obj, schema=dataset_patch_schema)
+        validate(dataset_patch_schema, citizen_obj)
         # Валидация отдельных полей. Проще сделать её вручную.
         if 'birth_date' in citizen_obj:
             validate_date(citizen_obj['birth_date'])
@@ -134,7 +133,6 @@ def main(import_id, citizen_id):
             cur_relatives_list = citizen_obj['relatives']
             prev_relatives = set(prev_relatives_list)
             cur_relatives = set(cur_relatives_list)
-            # todo: Нужно ли посортить?
             # Получим разницу в обоих случаях и
             # удалим/добавим необходимые id
             for relative_id in prev_relatives.difference(cur_relatives):

@@ -77,8 +77,6 @@ import_schema = {
 
 def main():
     # Пытаемся парсить пришедие данные, как JSON.
-    # print(request.headers)
-    # print(request.get_data())
     if request.get_json(silent=True) is None:
         # Если не удалось распарсить, выбрасываем исключение.
         raise ValueError("request data can't be parsed as json")
@@ -90,7 +88,6 @@ def main():
     dataset_counter = get_dataset_counter()
     # Если будет неудача, то import_id не изменится
     dataset = Dataset(id=(dataset_counter.counter + 1))
-    print('START')
     for citizen_obj in citizens:
         # Валидации для одного жителя.
         do_single_citizen_validations(citizen_obj)
@@ -115,7 +112,6 @@ def main():
     # конкретный dataset (выгрузка). При условии, что
     # все данные пользователей корректны,
     # мы добавляем данную выгрузку в БД.
-    # todo: почекать типы данных: строки/числа
     db.session.add(dataset)
     db.session.commit()
     success_response = {
