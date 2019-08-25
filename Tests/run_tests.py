@@ -3,7 +3,8 @@ import requests
 import json
 import os
 
-server_url = 'http://localhost:5000'
+# todo: изменить url, если изменится хост/порт
+server_url = 'http://localhost:8080'
 
 
 class TestGETCitizensRequest(unittest.TestCase):
@@ -33,7 +34,7 @@ class TestGETCitizensRequest(unittest.TestCase):
                              request_dirname='post_requests', command='POST', request_url='/imports')
 
     def test_requests(self):
-        for cit_id in range(1, 2):
+        for cit_id in range(1, 50):
             self.do_post_request()
             self.do_patch_request(cit_id)
             self.do_get_full_request(cit_id)
