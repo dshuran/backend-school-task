@@ -1,8 +1,9 @@
+from datetime import date
+
+import numpy as np
 from flask import jsonify
 
 from Model.dataset_mdl import Dataset
-from datetime import date
-import numpy as np
 
 
 def calculate_age(born):

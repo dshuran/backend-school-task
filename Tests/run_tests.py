@@ -1,7 +1,8 @@
-import unittest
-import requests
 import json
 import os
+import unittest
+
+import requests
 
 # todo: изменить url, если изменится хост/порт
 server_url = 'http://localhost:8080'
@@ -38,7 +39,7 @@ class TestGETCitizensRequest(unittest.TestCase):
         max_id = 2
         for cit_id in range(min_id, max_id + 1):
             self.do_post_request()
-            # self.do_patch_request(cit_id)
+            self.do_patch_request(cit_id)
             self.do_get_full_request(cit_id)
             self.do_get_percentiles_request(cit_id)
             self.do_get_presents_request(cit_id)
@@ -51,6 +52,7 @@ class TestGETCitizensRequest(unittest.TestCase):
             data = json.load(input_file)
         headers = {'content-type': 'application/json'}
         if command == 'POST':
+            print('SENDING POST')
             response = requests.post(server_url + request_url, data=json.dumps(data), headers=headers)
         elif command == 'PATCH':
             response = requests.patch(server_url + request_url, data=json.dumps(data), headers=headers)
@@ -58,11 +60,13 @@ class TestGETCitizensRequest(unittest.TestCase):
             response = requests.get(server_url + request_url, data=json.dumps(data), headers=headers)
         else:
             assert False
+        print('HERE')
         # Тесты
         if good_request:
             self.assertEqual(response.ok, True)
         else:
             self.assertEqual(response.ok, False)
+        print('AFTER ASSERTS!')
         parsed_json = json.loads(response.text)
         output_dirname = 'output'
         with open(os.path.join(path, output_dirname, output_file_name), 'w') as output_file:

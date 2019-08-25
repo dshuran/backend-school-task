@@ -1,12 +1,12 @@
-from flask import request, jsonify
 from fastjsonschema import validate
+from flask import request, jsonify
 
-from Model.citizen_mdl import Citizen, pack_relatives_to_db_format
 from Controller.data_validation import validate_relatives, validate_citizens_ids_intersection, \
     do_single_citizen_validations
-from database import db
+from Model.citizen_mdl import Citizen, pack_relatives_to_db_format
 from Model.dataset_counter_mdl import get_dataset_counter
 from Model.dataset_mdl import Dataset
+from database import db
 
 # Схема валидации для IMPORT запроса.
 import_schema = {
@@ -83,10 +83,8 @@ def main():
         # Если не удалось распарсить, выбрасываем исключение.
         raise ValueError("request data can't be parsed as json")
     # Проверяем request.json на соответствие схеме валидации.
-    print('SCHEME VAL')
     validate(import_schema, request.json)
     # validate(instance=request.json, schema=import_schema)
-    print('FINISH SCHEME VAL')
     citizens = request.json['citizens']
     # Получим счётчик из БД
     dataset_counter = get_dataset_counter()
@@ -109,10 +107,8 @@ def main():
             dataset=dataset)
     # Валидации на возможные некорректные данные
     # пользователей в поле relatives
-    print('START VAL')
     validate_citizens_ids_intersection(dataset.citizens)
     validate_relatives(dataset.citizens)
-    print('FINISH VAL')
     # Данные корректны, добавим в бд.
     # Добавление происходит следующим образом:
     # каждому пользователю сопоставляется

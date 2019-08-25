@@ -1,6 +1,5 @@
 from flask import jsonify
 
-from Model.citizen_mdl import Citizen
 from Model.dataset_mdl import Dataset
 
 
