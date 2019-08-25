@@ -7,7 +7,7 @@ import traceback
 from database import db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:benben12@localhost:5432/'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:benben12@localhost:5432/tmp'
 app.config['JSON_SORT_KEYS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
@@ -69,8 +69,7 @@ def handle_exception(e):
 
 
 def main():
-    if not os.path.isfile('D:\\MyWorkRep\\backend-school-task\\database.dt'):
-        setup_database()
+    setup_database()
     app.run(debug=True)
 
 

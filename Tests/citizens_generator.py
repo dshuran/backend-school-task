@@ -132,7 +132,7 @@ def generate_post_requests_input(requests_amount, citizens_amount, max_relatives
 
 
 def main():
-    generate_post_requests_input(1, 1000, 5)
+    generate_post_requests_input(1, 2000, 100)
     print('Citizens generated!')
 
 

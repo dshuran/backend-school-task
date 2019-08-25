@@ -12,6 +12,12 @@ def main():
     os.mkdir(os.path.join(path, 'get_full_requests'))
     os.mkdir(os.path.join(path, 'get_full_requests', 'input'))
     os.mkdir(os.path.join(path, 'get_full_requests', 'output'))
+    os.mkdir(os.path.join(path, 'get_presents_requests'))
+    os.mkdir(os.path.join(path, 'get_presents_requests', 'input'))
+    os.mkdir(os.path.join(path, 'get_presents_requests', 'output'))
+    os.mkdir(os.path.join(path, 'get_percentiles_requests'))
+    os.mkdir(os.path.join(path, 'get_percentiles_requests', 'input'))
+    os.mkdir(os.path.join(path, 'get_percentiles_requests', 'output'))
 
 
 if __name__ == '__main__':

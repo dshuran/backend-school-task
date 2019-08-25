@@ -6,26 +6,39 @@ import os
 server_url = 'http://localhost:5000'
 
 
-# Второй запрос из задания
 class TestGETCitizensRequest(unittest.TestCase):
 
-    """
-     def test_get_citizens_request(self):
-        response = requests.get(server_url + '/imports/1/citizens')
-        parsed_json = json.loads(response.text)
-        with open('get_citizens_request_result.txt', 'w') as outfile:
-            json.dump(parsed_json, outfile)
-    """
-    def test_patch_request(self):
-        import_id = 1
+    def do_get_full_request(self, import_id):
+        self.requests_tester(welcome_message='GET FULL REQUEST TESTS',
+                             request_dirname='get_full_requests', command='GET', request_url='/imports/1/citizens')
+
+    def do_get_presents_request(self, import_id):
+        self.requests_tester(welcome_message='GET PRESENTS REQUEST TESTS',
+                             request_dirname='get_presents_requests', command='GET',
+                             request_url='/imports/1/citizens/birthdays')
+
+    def do_get_percentiles_request(self, import_id):
+        self.requests_tester(welcome_message='GET PERCENTILES REQUEST TESTS',
+                             request_dirname='get_percentiles_requests', command='GET',
+                             request_url='/imports/1/towns/stat/percentile/age')
+
+    def do_patch_request(self, import_id):
         citizen_id = 1
         self.requests_tester(welcome_message='PATCH REQUEST TESTS',
                              request_dirname='patch_requests', command='PATCH',
                              request_url='/imports/' + str(import_id) + '/citizens/' + str(citizen_id))
 
-    def test_post_request(self):
+    def do_post_request(self):
         self.requests_tester(welcome_message='POST REQUEST TESTS',
                              request_dirname='post_requests', command='POST', request_url='/imports')
+
+    def test_requests(self):
+        for cit_id in range(1, 2):
+            self.do_post_request()
+            self.do_patch_request(cit_id)
+            self.do_get_full_request(cit_id)
+            self.do_get_percentiles_request(cit_id)
+            self.do_get_presents_request(cit_id)
 
     def request_sender(self, path, input_file_name, output_file_name, command, request_url):
         input_dirname = 'input'
